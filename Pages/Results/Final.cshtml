@@ -1,10 +1,18 @@
 @page
 @model CompetitionApp.Pages.Results.FinalModel
+@using CompetitionApp.Pages.Configuration
 @{
     ViewData["Title"] = "Resultados Finais";
+    var config = PenaltyConfigModel.GetCurrentConfiguration();
 }
 
 <h1>Resultados Finais da Competição</h1>
+
+<div class="mb-3">
+    <a asp-page="/Configuration/PenaltyConfig" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-gear"></i> Configurar Penalidades
+    </a>
+</div>
 
 @if (Model.FinalResults.Count == 0)
 {
@@ -38,10 +46,10 @@ else
                             <tr>
                                 <td>@(i + 1)</td>
                                 <td>@result.Name</td>
-                                <td>@(result.BestTime == 999 ? "Eliminado" : $"{result.BestTime}s")</td>
+                                <td>@(result.BestTime == config.DisqualifiedValue ? "Desclassificado" : $"{result.BestTime}s")</td>
                                 <td>@result.BestRound</td>
-                                <td>@(result.Round1Time == 999 ? "Eliminado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time}s"))</td>
-                                <td>@(result.Round2Time == 999 ? "Eliminado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time}s"))</td>
+                                <td>@(result.Round1Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time}s"))</td>
+                                <td>@(result.Round2Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time}s"))</td>
                             </tr>
                         }
                     </tbody>
@@ -50,8 +58,7 @@ else
         </div>
         <div class="card-footer">
             <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
-            <a asp-page="/Results/Print" class="btn btn-primary" target="_blank">Imprimir Resultados</a>
-            <a asp-page-handler="ExportPdf" class="btn btn-success">Exportar para PDF</a>
+            <a asp-page="/Results/ExportPdf" class="btn btn-success">Exportar para PDF</a>
         </div>
     </div>
     
@@ -68,6 +75,8 @@ else
                                 <tr>
                                     <th>Posição</th>
                                     <th>Nome</th>
+                                    <th>Tempo Base</th>
+                                    <th>Penalidades</th>
                                     <th>Tempo Total</th>
                                 </tr>
                             </thead>
@@ -81,10 +90,13 @@ else
                                     for (int i = 0; i < round1Results.Count; i++)
                                     {
                                         var result = round1Results[i];
+                                        var penalties = result.CalculateTotalTime() - result.TimeInSeconds;
                                         <tr>
                                             <td>@(i + 1)</td>
                                             <td>@result.Name</td>
-                                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime()}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds}s")</td>
+                                            <td>@(result.IsEliminated ? "-" : $"{penalties}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime()}s")</td>
                                         </tr>
                                     }
                                 }
@@ -107,6 +119,8 @@ else
                                 <tr>
                                     <th>Posição</th>
                                     <th>Nome</th>
+                                    <th>Tempo Base</th>
+                                    <th>Penalidades</th>
                                     <th>Tempo Total</th>
                                 </tr>
                             </thead>
@@ -120,16 +134,65 @@ else
                                     for (int i = 0; i < round2Results.Count; i++)
                                     {
                                         var result = round2Results[i];
+                                        var penalties = result.CalculateTotalTime() - result.TimeInSeconds;
                                         <tr>
                                             <td>@(i + 1)</td>
                                             <td>@result.Name</td>
-                                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime()}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds}s")</td>
+                                            <td>@(result.IsEliminated ? "-" : $"{penalties}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime()}s")</td>
                                         </tr>
                                     }
                                 }
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            Configuração de Penalidades Atual
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Bravo
+                            <span class="badge bg-primary rounded-pill">@config.BravoValue s</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Charlie
+                            <span class="badge bg-primary rounded-pill">@config.CharlieValue s</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Miss
+                            <span class="badge bg-primary rounded-pill">@config.MissValue s</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Vítima
+                            <span class="badge bg-primary rounded-pill">@config.VitimaValue s</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Plate
+                            <span class="badge bg-primary rounded-pill">@config.PlateValue s</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Fault
+                            <span class="badge bg-primary rounded-pill">@config.FaultValue s</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Desclassificado
+                            <span class="badge bg-danger rounded-pill">@config.DisqualifiedValue s</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ using CompetitionApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
+using CompetitionApp.Pages.Configuration;
 
 namespace CompetitionApp.Pages.Rounds
 {
@@ -24,6 +25,12 @@ namespace CompetitionApp.Pages.Rounds
         
         [BindProperty]
         public int FaltaCount { get; set; }
+        
+        [BindProperty]
+        public int VitimaCount { get; set; }
+        
+        [BindProperty]
+        public int PlateCount { get; set; }
         
         public List<Participant> Participants { get; set; } = new List<Participant>();
         public List<Participant> Round1Results { get; set; } = new List<Participant>();
@@ -58,7 +65,9 @@ namespace CompetitionApp.Pages.Rounds
                 BravoCount = BravoCount,
                 CharlieCount = CharlieCount,
                 MissCount = MissCount,
-                FaltaCount = FaltaCount
+                FaltaCount = FaltaCount,
+                VitimaCount = VitimaCount,
+                PlateCount = PlateCount
             };
             
             Round1Results.Add(result);
@@ -93,6 +102,13 @@ namespace CompetitionApp.Pages.Rounds
             if (!string.IsNullOrEmpty(round1ResultsJson))
             {
                 Round1Results = JsonSerializer.Deserialize<List<Participant>>(round1ResultsJson) ?? new List<Participant>();
+                
+                // Garantir que participantes antigos tenham os novos campos inicializados
+                foreach (var result in Round1Results)
+                {
+                    if (result.VitimaCount == null) result.VitimaCount = 0;
+                    if (result.PlateCount == null) result.PlateCount = 0;
+                }
             }
         }
     }

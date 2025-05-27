@@ -1,10 +1,18 @@
 @page
 @model CompetitionApp.Pages.Rounds.Round2Model
+@using CompetitionApp.Pages.Configuration
 @{
     ViewData["Title"] = "Segunda Rodada";
+    var config = PenaltyConfigModel.GetCurrentConfiguration();
 }
 
 <h1>Segunda Rodada</h1>
+
+<div class="mb-3">
+    <a asp-page="/Configuration/PenaltyConfig" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-gear"></i> Configurar Penalidades
+    </a>
+</div>
 
 @if (Model.Participants.Count == 0)
 {
@@ -41,33 +49,48 @@ else
 
                 <div class="form-group mb-3">
                     <label for="timeInSeconds">Tempo (em segundos):</label>
-                    <input type="number" id="timeInSeconds" name="TimeInSeconds" class="form-control" min="0" max="999" required />
-                    <small class="form-text text-muted">Use 999 para indicar que o participante foi eliminado.</small>
+                    <input type="number" id="timeInSeconds" name="TimeInSeconds" class="form-control" min="0" max="@config.DisqualifiedValue" required />
+                    <small class="form-text text-muted">Use @config.DisqualifiedValue para indicar que o participante foi desclassificado.</small>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label for="bravoCount">Bravo (3s):</label>
+                            <label for="bravoCount">Bravo (@config.BravoValue s):</label>
                             <input type="number" id="bravoCount" name="BravoCount" class="form-control" min="0" value="0" required />
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label for="charlieCount">Charlie (5s):</label>
+                            <label for="charlieCount">Charlie (@config.CharlieValue s):</label>
                             <input type="number" id="charlieCount" name="CharlieCount" class="form-control" min="0" value="0" required />
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label for="missCount">Miss (10s):</label>
+                            <label for="missCount">Miss (@config.MissValue s):</label>
                             <input type="number" id="missCount" name="MissCount" class="form-control" min="0" value="0" required />
                         </div>
                     </div>
-                    <div class="col-md-3">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label for="faltaCount">Falta (10s):</label>
+                            <label for="faltaCount">Fault (@config.FaultValue s):</label>
                             <input type="number" id="faltaCount" name="FaltaCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="vitimaCount">Vítima (@config.VitimaValue s):</label>
+                            <input type="number" id="vitimaCount" name="VitimaCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="plateCount">Plate (@config.PlateValue s):</label>
+                            <input type="number" id="plateCount" name="PlateCount" class="form-control" min="0" value="0" required />
                         </div>
                     </div>
                 </div>
@@ -94,10 +117,12 @@ else
                             <tr>
                                 <th>Posição</th>
                                 <th>Nome</th>
-                                <th>Bravo (3s)</th>
-                                <th>Charlie (5s)</th>
-                                <th>Miss (10s)</th>
-                                <th>Falta (10s)</th>
+                                <th>Bravo (@config.BravoValue s)</th>
+                                <th>Charlie (@config.CharlieValue s)</th>
+                                <th>Miss (@config.MissValue s)</th>
+                                <th>Fault (@config.FaultValue s)</th>
+                                <th>Vítima (@config.VitimaValue s)</th>
+                                <th>Plate (@config.PlateValue s)</th>
                                 <th>Tempo Base</th>
                                 <th>Tempo Total</th>
                                 <th>Ações</th>
@@ -120,8 +145,10 @@ else
                                         <td>@result.CharlieCount</td>
                                         <td>@result.MissCount</td>
                                         <td>@result.FaltaCount</td>
-                                        <td>@(result.IsEliminated ? "Eliminado" : $"{result.TimeInSeconds}s")</td>
-                                        <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime()}s")</td>
+                                        <td>@result.VitimaCount</td>
+                                        <td>@result.PlateCount</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime()}s")</td>
                                         <td>
                                             <form method="post" asp-page-handler="Remove">
                                                 <input type="hidden" name="name" value="@result.Name" />

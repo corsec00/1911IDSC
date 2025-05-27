@@ -1,0 +1,95 @@
+@page
+@model CompetitionApp.Pages.Configuration.PenaltyConfigModel
+@{
+    ViewData["Title"] = "Configuração de Penalidades";
+}
+
+<h1>Configuração de Penalidades</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Valores de Penalidades (em segundos)</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="PenaltyConfig.BravoValue" class="form-label"></label>
+                        <input asp-for="PenaltyConfig.BravoValue" class="form-control" />
+                        <span asp-validation-for="PenaltyConfig.BravoValue" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="PenaltyConfig.CharlieValue" class="form-label"></label>
+                        <input asp-for="PenaltyConfig.CharlieValue" class="form-control" />
+                        <span asp-validation-for="PenaltyConfig.CharlieValue" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="PenaltyConfig.MissValue" class="form-label"></label>
+                        <input asp-for="PenaltyConfig.MissValue" class="form-control" />
+                        <span asp-validation-for="PenaltyConfig.MissValue" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="PenaltyConfig.VitimaValue" class="form-label"></label>
+                        <input asp-for="PenaltyConfig.VitimaValue" class="form-control" />
+                        <span asp-validation-for="PenaltyConfig.VitimaValue" class="text-danger"></span>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="PenaltyConfig.PlateValue" class="form-label"></label>
+                        <input asp-for="PenaltyConfig.PlateValue" class="form-control" />
+                        <span asp-validation-for="PenaltyConfig.PlateValue" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="PenaltyConfig.FaultValue" class="form-label"></label>
+                        <input asp-for="PenaltyConfig.FaultValue" class="form-control" />
+                        <span asp-validation-for="PenaltyConfig.FaultValue" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="PenaltyConfig.DisqualifiedValue" class="form-label"></label>
+                        <input asp-for="PenaltyConfig.DisqualifiedValue" class="form-control" />
+                        <span asp-validation-for="PenaltyConfig.DisqualifiedValue" class="text-danger"></span>
+                        <small class="form-text text-muted">Valor usado para marcar participantes desclassificados.</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <h5>Informações sobre as penalidades:</h5>
+    <ul>
+        <li><strong>Bravo:</strong> Penalidade para erros leves</li>
+        <li><strong>Charlie:</strong> Penalidade para erros moderados</li>
+        <li><strong>Miss:</strong> Penalidade para alvos não atingidos</li>
+        <li><strong>Vítima:</strong> Penalidade para acerto em vítimas</li>
+        <li><strong>Plate:</strong> Penalidade para placas não derrubadas</li>
+        <li><strong>Fault:</strong> Penalidade para faltas gerais</li>
+        <li><strong>Desclassificado:</strong> Valor usado para marcar participantes desclassificados</li>
+    </ul>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

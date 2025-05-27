@@ -2,6 +2,7 @@ using CompetitionApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
+using CompetitionApp.Pages.Configuration;
 
 namespace CompetitionApp.Pages.Results
 {
@@ -32,17 +33,35 @@ namespace CompetitionApp.Pages.Results
             if (!string.IsNullOrEmpty(round1ResultsJson))
             {
                 Round1Results = JsonSerializer.Deserialize<List<Participant>>(round1ResultsJson) ?? new List<Participant>();
+                
+                // Garantir que participantes antigos tenham os novos campos inicializados
+                foreach (var result in Round1Results)
+                {
+                    if (result.VitimaCount == null) result.VitimaCount = 0;
+                    if (result.PlateCount == null) result.PlateCount = 0;
+                }
             }
             
             var round2ResultsJson = HttpContext.Session.GetString("Round2Results");
             if (!string.IsNullOrEmpty(round2ResultsJson))
             {
                 Round2Results = JsonSerializer.Deserialize<List<Participant>>(round2ResultsJson) ?? new List<Participant>();
+                
+                // Garantir que participantes antigos tenham os novos campos inicializados
+                foreach (var result in Round2Results)
+                {
+                    if (result.VitimaCount == null) result.VitimaCount = 0;
+                    if (result.PlateCount == null) result.PlateCount = 0;
+                }
             }
         }
         
         private void CalculateFinalResults()
         {
+            // Obter a configuração atual de penalidades
+            var config = PenaltyConfigModel.GetCurrentConfiguration();
+            int disqualifiedValue = config.DisqualifiedValue;
+            
             // Obter todos os participantes únicos das duas rodadas
             var allParticipants = new HashSet<string>();
             
@@ -100,10 +119,10 @@ namespace CompetitionApp.Pages.Results
                         FinalResults.Add(new FinalResult
                         {
                             Name = name,
-                            Round1Time = 999,
-                            Round2Time = 999,
-                            BestTime = 999,
-                            BestRound = "Eliminado"
+                            Round1Time = disqualifiedValue,
+                            Round2Time = disqualifiedValue,
+                            BestTime = disqualifiedValue,
+                            BestRound = "Desclassificado"
                         });
                     }
                     // Se foi eliminado apenas na rodada 1
@@ -112,7 +131,7 @@ namespace CompetitionApp.Pages.Results
                         FinalResults.Add(new FinalResult
                         {
                             Name = name,
-                            Round1Time = 999,
+                            Round1Time = disqualifiedValue,
                             Round2Time = round2Time,
                             BestTime = round2Time,
                             BestRound = "Rodada 2"
@@ -125,7 +144,7 @@ namespace CompetitionApp.Pages.Results
                         {
                             Name = name,
                             Round1Time = round1Time,
-                            Round2Time = 999,
+                            Round2Time = disqualifiedValue,
                             BestTime = round1Time,
                             BestRound = "Rodada 1"
                         });
@@ -150,8 +169,8 @@ namespace CompetitionApp.Pages.Results
             
             // Ordenar os resultados finais
             FinalResults = FinalResults
-                .OrderBy(r => r.BestTime == 999) // Não eliminados primeiro
-                .ThenBy(r => r.BestTime)         // Depois pelo melhor tempo
+                .OrderBy(r => r.BestTime == disqualifiedValue) // Não eliminados primeiro
+                .ThenBy(r => r.BestTime)                      // Depois pelo melhor tempo
                 .ToList();
         }
     }
