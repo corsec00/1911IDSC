@@ -18,45 +18,65 @@ namespace CompetitionApp.Pages.Configuration
 
         public void OnGet()
         {
-            // Verifica se já existem resultados cadastrados
-            CheckForExistingResults();
-            
-            // Se já existem resultados, redireciona para a página inicial
-            if (HasAnyResults)
+            try
             {
-                TempData["ErrorMessage"] = "A competição já foi iniciada. As penalidades não podem ser alteradas.";
-                Response.Redirect("/Index");
-                return;
+                // Verifica se já existem resultados cadastrados
+                CheckForExistingResults();
+                
+                // Se já existem resultados, redireciona para a página inicial
+                if (HasAnyResults)
+                {
+                    TempData["ErrorMessage"] = "A competição já foi iniciada. As penalidades não podem ser alteradas.";
+                    Response.Redirect("/Index");
+                    return;
+                }
+                
+                // Carrega os valores atuais da configuração
+                PenaltyConfig = _penaltyConfig;
             }
-            
-            // Carrega os valores atuais da configuração
-            PenaltyConfig = _penaltyConfig;
+            catch (Exception ex)
+            {
+                // Em caso de erro, registra o erro e carrega os valores padrão
+                Console.WriteLine($"Erro ao carregar a página de configuração: {ex.Message}");
+                PenaltyConfig = new PenaltyConfiguration();
+            }
         }
 
         public IActionResult OnPost()
         {
-            // Verifica se já existem resultados cadastrados
-            CheckForExistingResults();
-            
-            // Se já existem resultados, não permite alterações
-            if (HasAnyResults)
+            try
             {
-                TempData["ErrorMessage"] = "A competição já foi iniciada. As penalidades não podem ser alteradas.";
+                // Verifica se já existem resultados cadastrados
+                CheckForExistingResults();
+                
+                // Se já existem resultados, não permite alterações
+                if (HasAnyResults)
+                {
+                    TempData["ErrorMessage"] = "A competição já foi iniciada. As penalidades não podem ser alteradas.";
+                    return RedirectToPage("/Index");
+                }
+                
+                if (!ModelState.IsValid)
+                {
+                    return Page();
+                }
+
+                // Atualiza a configuração estática com os novos valores
+                _penaltyConfig = PenaltyConfig;
+
+                // Adiciona mensagem de sucesso
+                TempData["SuccessMessage"] = "Configurações de penalidades atualizadas com sucesso!";
+
                 return RedirectToPage("/Index");
             }
-            
-            if (!ModelState.IsValid)
+            catch (Exception ex)
             {
+                // Em caso de erro, registra o erro e retorna para a página com mensagem
+                Console.WriteLine($"Erro ao salvar a configuração: {ex.Message}");
+                ModelState.AddModelError(string.Empty, "Ocorreu um erro ao salvar as configurações. Por favor, tente novamente.");
+                PenaltyConfig = _penaltyConfig;
                 return Page();
             }
-
-            // Atualiza a configuração estática com os novos valores
-            _penaltyConfig = PenaltyConfig;
-
-            // Adiciona mensagem de sucesso
-            TempData["SuccessMessage"] = "Configurações de penalidades atualizadas com sucesso!";
-
-            return RedirectToPage("/Index");
         }
 
         // Método estático para obter a configuração atual de qualquer lugar do aplicativo
@@ -67,20 +87,35 @@ namespace CompetitionApp.Pages.Configuration
         
         private void CheckForExistingResults()
         {
-            var round1ResultsJson = HttpContext.Session.GetString("Round1Results");
-            var round2ResultsJson = HttpContext.Session.GetString("Round2Results");
-            
-            var round1Results = !string.IsNullOrEmpty(round1ResultsJson) 
-                ? JsonSerializer.Deserialize<List<Participant>>(round1ResultsJson) 
-                : new List<Participant>();
+            try
+            {
+                // Verifica se a sessão está disponível
+                if (HttpContext.Session == null)
+                {
+                    HasAnyResults = false;
+                    return;
+                }
                 
-            var round2Results = !string.IsNullOrEmpty(round2ResultsJson) 
-                ? JsonSerializer.Deserialize<List<Participant>>(round2ResultsJson) 
-                : new List<Participant>();
+                var round1ResultsJson = HttpContext.Session.GetString("Round1Results");
+                var round2ResultsJson = HttpContext.Session.GetString("Round2Results");
                 
-            // A competição já foi iniciada se houver qualquer resultado em qualquer rodada
-            HasAnyResults = (round1Results != null && round1Results.Count > 0) || 
-                           (round2Results != null && round2Results.Count > 0);
+                var round1Results = !string.IsNullOrEmpty(round1ResultsJson) 
+                    ? JsonSerializer.Deserialize<List<Participant>>(round1ResultsJson) 
+                    : new List<Participant>();
+                    
+                var round2Results = !string.IsNullOrEmpty(round2ResultsJson) 
+                    ? JsonSerializer.Deserialize<List<Participant>>(round2ResultsJson) 
+                    : new List<Participant>();
+                    
+                // A competição já foi iniciada se houver qualquer resultado em qualquer rodada
+                HasAnyResults = (round1Results != null && round1Results.Count > 0) || 
+                               (round2Results != null && round2Results.Count > 0);
+            }
+            catch
+            {
+                // Em caso de erro, assume que não há resultados
+                HasAnyResults = false;
+            }
         }
     }
 }
