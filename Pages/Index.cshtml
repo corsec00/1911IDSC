@@ -1,0 +1,66 @@
+@page
+@model CompetitionApp.Pages.IndexModel
+@{
+    ViewData["Title"] = "Competição";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Sistema de Competição</h1>
+    <p>Bem-vindo ao sistema de gerenciamento de competição.</p>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Participantes</h5>
+                    <p class="card-text">Cadastre os participantes da competição.</p>
+                    <a asp-page="/Participants/Register" class="btn btn-primary">Cadastrar Participantes</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Primeira Rodada</h5>
+                    <p class="card-text">Registre os resultados da primeira rodada.</p>
+                    <a asp-page="/Rounds/Round1" class="btn btn-primary">Primeira Rodada</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Segunda Rodada</h5>
+                    <p class="card-text">Registre os resultados da segunda rodada.</p>
+                    <a asp-page="/Rounds/Round2" class="btn btn-primary">Segunda Rodada</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Resultados</h5>
+                    <p class="card-text">Visualize os resultados finais da competição.</p>
+                    <a asp-page="/Results/Final" class="btn btn-success">Ver Resultados</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Reiniciar Competição</h5>
+                    <p class="card-text">Limpe todos os dados e comece uma nova competição.</p>
+                    <form method="post" asp-page-handler="ClearData">
+                        <button type="submit" class="btn btn-danger">Limpar Dados</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

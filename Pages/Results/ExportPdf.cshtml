@@ -1,0 +1,174 @@
+@page
+@model CompetitionApp.Pages.Results.ExportPdfModel
+@{
+    ViewData["Title"] = "Exportar PDF";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Resultados da Competição - PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Resultados da Competição</h1>
+        <p>Data: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+
+    <div class="section">
+        <h2>Classificação Final (Baseada no Melhor Tempo)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Nome</th>
+                    <th>Melhor Tempo</th>
+                    <th>Rodada do Melhor Tempo</th>
+                    <th>Tempo Rodada 1</th>
+                    <th>Tempo Rodada 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.FinalResults.Count; i++)
+                {
+                    var result = Model.FinalResults[i];
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@result.Name</td>
+                        <td>@(result.BestTime == 999 ? "Eliminado" : $"{result.BestTime}s")</td>
+                        <td>@result.BestRound</td>
+                        <td>@(result.Round1Time == 999 ? "Eliminado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time}s"))</td>
+                        <td>@(result.Round2Time == 999 ? "Eliminado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time}s"))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Resultados da Primeira Rodada</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Nome</th>
+                    <th>Bravo (3s)</th>
+                    <th>Charlie (5s)</th>
+                    <th>Miss (10s)</th>
+                    <th>Falta (10s)</th>
+                    <th>Tempo Base</th>
+                    <th>Tempo Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var round1Results = Model.Round1Results
+                        .OrderBy(p => p.IsEliminated)
+                        .ThenBy(p => p.CalculateTotalTime())
+                        .ToList();
+
+                    for (int i = 0; i < round1Results.Count; i++)
+                    {
+                        var result = round1Results[i];
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@result.Name</td>
+                            <td>@result.BravoCount</td>
+                            <td>@result.CharlieCount</td>
+                            <td>@result.MissCount</td>
+                            <td>@result.FaltaCount</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.TimeInSeconds}s")</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime()}s")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Resultados da Segunda Rodada</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Nome</th>
+                    <th>Bravo (3s)</th>
+                    <th>Charlie (5s)</th>
+                    <th>Miss (10s)</th>
+                    <th>Falta (10s)</th>
+                    <th>Tempo Base</th>
+                    <th>Tempo Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var round2Results = Model.Round2Results
+                        .OrderBy(p => p.IsEliminated)
+                        .ThenBy(p => p.CalculateTotalTime())
+                        .ToList();
+
+                    for (int i = 0; i < round2Results.Count; i++)
+                    {
+                        var result = round2Results[i];
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@result.Name</td>
+                            <td>@result.BravoCount</td>
+                            <td>@result.CharlieCount</td>
+                            <td>@result.MissCount</td>
+                            <td>@result.FaltaCount</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.TimeInSeconds}s")</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime()}s")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Sistema de Competição - Gerado em @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</p>
+    </div>
+</body>
+</html>
