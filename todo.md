@@ -7,3 +7,4 @@
 - [x] Adicionar funcionalidade de exportação para PDF
 - [x] Preparar instruções de implantação no Azure Web App
 - [x] Validar a aplicação e documentação
+ - 
