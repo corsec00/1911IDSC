@@ -21,8 +21,8 @@ jobs:
       run: ls -la
       
     - name: Find csproj files
-      run: find . -name "*.csproj"
-
+      run: Get-ChildItem -Recurse -Filter *.csproj | Select-Object FullName
+      
     - name: Build with dotnet
       run: |
         # Especifica o caminho completo para o arquivo .csproj
