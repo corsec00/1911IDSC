@@ -1,0 +1,167 @@
+@page
+@model CompetitionApp.Pages.Rounds.Round1Model
+@using CompetitionApp.Pages.Configuration
+@{
+    ViewData["Title"] = "Primeira Rodada";
+    var config = PenaltyConfigModel.GetCurrentConfiguration();
+}
+
+<h1>Primeira Rodada</h1>
+
+
+
+@if (Model.Participants.Count == 0)
+{
+    <div class="alert alert-warning">
+        Não há participantes cadastrados. <a asp-page="/Participants/Register">Cadastre participantes</a> antes de iniciar a rodada.
+    </div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            Registro de Resultados
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="form-group mb-3">
+                    <label for="participantSelect">Selecione o Participante:</label>
+                    <select id="participantSelect" name="ParticipantName" class="form-control" required>
+                        <option value="">-- Selecione --</option>
+                        @foreach (var participant in Model.Participants)
+                        {
+                            var completed = Model.Round1Results.Any(r => r.Name == participant.Name);
+                            if (completed)
+                            {
+                                <option value="@participant.Name" disabled>@participant.Name (Já registrado)</option>
+                            }
+                            else
+                            {
+                                <option value="@participant.Name">@participant.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="timeInSeconds">Tempo (em segundos):</label>
+                    <input type="number" id="timeInSeconds" name="TimeInSeconds" class="form-control" min="0" max="@config.DisqualifiedValue" required />
+                    <small class="form-text text-muted">Use @config.DisqualifiedValue para indicar que o participante foi desclassificado.</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="bravoCount">Bravo (@config.BravoValue s):</label>
+                            <input type="number" id="bravoCount" name="BravoCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="charlieCount">Charlie (@config.CharlieValue s):</label>
+                            <input type="number" id="charlieCount" name="CharlieCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="missCount">Miss (@config.MissValue s):</label>
+                            <input type="number" id="missCount" name="MissCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="faltaCount">Fault (@config.FaultValue s):</label>
+                            <input type="number" id="faltaCount" name="FaltaCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="vitimaCount">Vítima (@config.VitimaValue s):</label>
+                            <input type="number" id="vitimaCount" name="VitimaCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label for="plateCount">Plate (@config.PlateValue s):</label>
+                            <input type="number" id="plateCount" name="PlateCount" class="form-control" min="0" value="0" required />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Registrar Resultado</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Resultados da Primeira Rodada
+        </div>
+        <div class="card-body">
+            @if (Model.Round1Results.Count == 0)
+            {
+                <p>Nenhum resultado registrado ainda.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Bravo (@config.BravoValue s)</th>
+                                <th>Charlie (@config.CharlieValue s)</th>
+                                <th>Miss (@config.MissValue s)</th>
+                                <th>Fault (@config.FaultValue s)</th>
+                                <th>Vítima (@config.VitimaValue s)</th>
+                                <th>Plate (@config.PlateValue s)</th>
+                                <th>Tempo Base</th>
+                                <th>Tempo Total</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var sortedResults = Model.Round1Results
+                                    .OrderBy(p => p.IsEliminated)
+                                    .ThenBy(p => p.CalculateTotalTime())
+                                    .ToList();
+
+                                for (int i = 0; i < sortedResults.Count; i++)
+                                {
+                                    var result = sortedResults[i];
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>@result.Name</td>
+                                        <td>@result.BravoCount</td>
+                                        <td>@result.CharlieCount</td>
+                                        <td>@result.MissCount</td>
+                                        <td>@result.FaltaCount</td>
+                                        <td>@result.VitimaCount</td>
+                                        <td>@result.PlateCount</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime()}s")</td>
+                                        <td>
+                                            <form method="post" asp-page-handler="Remove">
+                                                <input type="hidden" name="name" value="@result.Name" />
+                                                <button type="submit" class="btn btn-sm btn-danger">Remover</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
+            <a asp-page="/Rounds/Round2" class="btn btn-primary">Ir para Segunda Rodada</a>
+        </div>
+    </div>
+}
