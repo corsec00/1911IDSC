@@ -24,7 +24,7 @@ jobs:
       run: find . -name "*.csproj"
       
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./CompetitionApp.csproj
     # Resstaura as dependências do NuGET para as conexões com a Azure
 
     - name: Build with dotnet
