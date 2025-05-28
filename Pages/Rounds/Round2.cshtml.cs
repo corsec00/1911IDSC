@@ -32,6 +32,9 @@ namespace CompetitionApp.Pages.Rounds
         [BindProperty]
         public int PlateCount { get; set; }
         
+        [BindProperty]
+        public bool IsEditing { get; set; }
+        
         public List<Participant> Participants { get; set; } = new List<Participant>();
         public List<Participant> Round2Results { get; set; } = new List<Participant>();
         
@@ -50,30 +53,59 @@ namespace CompetitionApp.Pages.Rounds
                 return Page();
             }
             
-            // Verificar se o participante já tem resultado registrado
-            if (Round2Results.Any(p => p.Name == ParticipantName))
+            // Verificar se estamos editando ou adicionando um novo resultado
+            if (IsEditing)
             {
-                ModelState.AddModelError("ParticipantName", "Este participante já tem resultado registrado.");
-                return Page();
+                // Encontrar o resultado existente para atualizar
+                var existingResult = Round2Results.FirstOrDefault(p => p.Name == ParticipantName);
+                if (existingResult != null)
+                {
+                    // Atualizar os valores
+                    existingResult.TimeInSeconds = TimeInSeconds;
+                    existingResult.BravoCount = BravoCount;
+                    existingResult.CharlieCount = CharlieCount;
+                    existingResult.MissCount = MissCount;
+                    existingResult.FaltaCount = FaltaCount;
+                    existingResult.VitimaCount = VitimaCount;
+                    existingResult.PlateCount = PlateCount;
+                    
+                    // Salvar as alterações
+                    HttpContext.Session.SetString("Round2Results", JsonSerializer.Serialize(Round2Results));
+                    return RedirectToPage();
+                }
+                else
+                {
+                    ModelState.AddModelError("ParticipantName", "Participante não encontrado para edição.");
+                    return Page();
+                }
             }
-            
-            // Criar novo resultado
-            var result = new Participant
+            else
             {
-                Name = ParticipantName,
-                TimeInSeconds = TimeInSeconds,
-                BravoCount = BravoCount,
-                CharlieCount = CharlieCount,
-                MissCount = MissCount,
-                FaltaCount = FaltaCount,
-                VitimaCount = VitimaCount,
-                PlateCount = PlateCount
-            };
-            
-            Round2Results.Add(result);
-            HttpContext.Session.SetString("Round2Results", JsonSerializer.Serialize(Round2Results));
-            
-            return RedirectToPage();
+                // Verificar se o participante já tem resultado registrado
+                if (Round2Results.Any(p => p.Name == ParticipantName))
+                {
+                    ModelState.AddModelError("ParticipantName", "Este participante já tem resultado registrado.");
+                    return Page();
+                }
+                
+                // Criar novo resultado
+                var result = new Participant
+                {
+                    Name = ParticipantName,
+                    TimeInSeconds = TimeInSeconds,
+                    BravoCount = BravoCount,
+                    CharlieCount = CharlieCount,
+                    MissCount = MissCount,
+                    FaltaCount = FaltaCount,
+                    VitimaCount = VitimaCount,
+                    PlateCount = PlateCount
+                };
+                
+                Round2Results.Add(result);
+                HttpContext.Session.SetString("Round2Results", JsonSerializer.Serialize(Round2Results));
+                
+                return RedirectToPage();
+            }
         }
         
         public IActionResult OnPostRemove(string name)
