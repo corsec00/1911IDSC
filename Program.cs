@@ -1,3 +1,7 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using CompetitionApp.Managers;
+using CompetitionApp.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -36,12 +40,30 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.Razor.RazorViewEngineOptions
     options.ViewLocationFormats.Add("/Views/Shared/{0}" + RazorViewEngine.ViewExtension);
 });
 
+// Configure Azure Key Vault
+var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
+if (!string.IsNullOrEmpty(keyVaultUri))
+{
+    var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
+    builder.Services.AddSingleton(secretClient);
+}
+
+// Register Azure Table Storage services
+builder.Services.AddScoped<ITableStorageService, TableStorageService>();
+builder.Services.AddScoped<ICompetitionService, CompetitionService>();
+builder.Services.AddScoped<IParticipantService, ParticipantService>();
+builder.Services.AddScoped<IResultService, ResultService>();
+builder.Services.AddScoped<IFinalResultService, FinalResultService>();
+builder.Services.AddScoped<ICompetitionManager, CompetitionManager>();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

@@ -1,0 +1,53 @@
+@page
+@model CompetitionApp.Pages.History.CompetitionsModel
+@{
+    ViewData["Title"] = "Histórico de Competições";
+}
+
+<h1>Histórico de Competições</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Competições Anteriores
+    </div>
+    <div class="card-body">
+        @if (!Model.Competitions.Any())
+        {
+            <p>Nenhuma competição encontrada.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var competition in Model.Competitions)
+                        {
+                            <tr>
+                                <td>@competition.Name</td>
+                                <td>@competition.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@competition.Description</td>
+                                <td>
+                                    <form method="post" asp-page-handler="Select">
+                                        <input type="hidden" name="competitionId" value="@competition.RowKey" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Selecionar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="card-footer">
+        <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
+    </div>
+</div>
