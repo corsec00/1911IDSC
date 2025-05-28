@@ -10,7 +10,22 @@ builder.Services.AddRazorPages()
     .AddRazorPagesOptions(options =>
     {
         // Configure Razor Pages options if needed
+    })
+    .AddMvcOptions(options =>
+    {
+        // Configure model binding to accept both comma and dot as decimal separators
+        options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
+            _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
     });
+
+// Configure globalization options to support multiple cultures
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "pt-BR", "en-US" };
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+});
 
 // Configure Razor View Engine to improve partial view discovery
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.Razor.RazorViewEngineOptions>(options =>
@@ -42,6 +57,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.UseSession();
+
+// Add request localization middleware
+app.UseRequestLocalization();
 
 app.UseAuthorization();
 

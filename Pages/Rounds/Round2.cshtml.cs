@@ -12,7 +12,7 @@ namespace CompetitionApp.Pages.Rounds
         public string ParticipantName { get; set; } = string.Empty;
         
         [BindProperty]
-        public int TimeInSeconds { get; set; }
+        public decimal TimeInSeconds { get; set; }
         
         [BindProperty]
         public int BravoCount { get; set; }
