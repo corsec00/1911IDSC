@@ -1,3 +1,4 @@
 *.PublishSettings
+*.SAConnectionStrings
 /bin
 /Versions/temp/*.zip
