@@ -1,2 +1,3 @@
 *.PublishSettings
 /bin
+/Versions/temp/*.zip
