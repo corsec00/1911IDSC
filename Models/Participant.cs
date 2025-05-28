@@ -6,7 +6,10 @@ namespace CompetitionApp.Models
     public class Participant
     {
         public string Name { get; set; } = string.Empty;
-        public int TimeInSeconds { get; set; }
+        
+        [DisplayFormat(DataFormatString = "{0:F3}", ApplyFormatInEditMode = true)]
+        public decimal TimeInSeconds { get; set; }
+        
         public int BravoCount { get; set; }
         public int CharlieCount { get; set; }
         public int MissCount { get; set; }
@@ -14,7 +17,7 @@ namespace CompetitionApp.Models
         public int VitimaCount { get; set; }
         public int PlateCount { get; set; }
         
-        public int CalculateTotalTime()
+        public decimal CalculateTotalTime()
         {
             // Obter a configuração atual de penalidades
             var config = PenaltyConfigModel.GetCurrentConfiguration();

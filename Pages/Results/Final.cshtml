@@ -46,10 +46,10 @@ else
                             <tr>
                                 <td>@(i + 1)</td>
                                 <td>@result.Name</td>
-                                <td>@(result.BestTime == config.DisqualifiedValue ? "Desclassificado" : $"{result.BestTime}s")</td>
+                                <td>@(result.BestTime == config.DisqualifiedValue ? "Desclassificado" : $"{result.BestTime:F3}s")</td>
                                 <td>@result.BestRound</td>
-                                <td>@(result.Round1Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time}s"))</td>
-                                <td>@(result.Round2Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time}s"))</td>
+                                <td>@(result.Round1Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time:F3}s"))</td>
+                                <td>@(result.Round2Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time:F3}s"))</td>
                             </tr>
                         }
                     </tbody>
@@ -94,9 +94,9 @@ else
                                         <tr>
                                             <td>@(i + 1)</td>
                                             <td>@result.Name</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds}s")</td>
-                                            <td>@(result.IsEliminated ? "-" : $"{penalties}s")</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime()}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
+                                            <td>@(result.IsEliminated ? "-" : $"{penalties:F3}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime():F3}s")</td>
                                         </tr>
                                     }
                                 }
@@ -138,9 +138,9 @@ else
                                         <tr>
                                             <td>@(i + 1)</td>
                                             <td>@result.Name</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds}s")</td>
-                                            <td>@(result.IsEliminated ? "-" : $"{penalties}s")</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime()}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
+                                            <td>@(result.IsEliminated ? "-" : $"{penalties:F3}s")</td>
+                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime():F3}s")</td>
                                         </tr>
                                     }
                                 }
