@@ -22,6 +22,10 @@ jobs:
       
     - name: Find csproj files
       run: find . -name "*.csproj"
+      
+    - name: Restore dependencies
+    run: dotnet restore
+    # Resstaura as dependências do NuGET para as conexões com a Azure
 
     - name: Build with dotnet
       run: |
