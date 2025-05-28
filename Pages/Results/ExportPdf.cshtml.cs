@@ -193,8 +193,8 @@ namespace CompetitionApp.Pages.Results
                 var round1Participant = Round1Results.FirstOrDefault(p => p.Name == name);
                 var round2Participant = Round2Results.FirstOrDefault(p => p.Name == name);
                 
-                int round1Time = round1Participant != null ? round1Participant.CalculateTotalTime() : 0;
-                int round2Time = round2Participant != null ? round2Participant.CalculateTotalTime() : 0;
+                decimal round1Time = round1Participant != null ? round1Participant.CalculateTotalTime() : 0;
+                decimal round2Time = round2Participant != null ? round2Participant.CalculateTotalTime() : 0;
                 
                 // Se o participante não tem tempo em uma rodada, considerar o tempo da outra rodada
                 if (round1Time == 0 && round2Time > 0)
@@ -265,7 +265,7 @@ namespace CompetitionApp.Pages.Results
                     else
                     {
                         string bestRound = round1Time <= round2Time ? "Rodada 1" : "Rodada 2";
-                        int bestTime = Math.Min(round1Time, round2Time);
+                        decimal bestTime = Math.Min(round1Time, round2Time);
                         
                         FinalResults.Add(new FinalResult
                         {

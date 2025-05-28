@@ -60,7 +60,7 @@ namespace CompetitionApp.Pages.Results
         {
             // Obter a configuração atual de penalidades
             var config = PenaltyConfigModel.GetCurrentConfiguration();
-            int disqualifiedValue = config.DisqualifiedValue;
+            decimal disqualifiedValue = config.DisqualifiedValue;
             
             // Obter todos os participantes únicos das duas rodadas
             var allParticipants = new HashSet<string>();
@@ -81,8 +81,8 @@ namespace CompetitionApp.Pages.Results
                 var round1Participant = Round1Results.FirstOrDefault(p => p.Name == name);
                 var round2Participant = Round2Results.FirstOrDefault(p => p.Name == name);
                 
-                int round1Time = round1Participant != null ? round1Participant.CalculateTotalTime() : 0;
-                int round2Time = round2Participant != null ? round2Participant.CalculateTotalTime() : 0;
+                decimal round1Time = round1Participant != null ? round1Participant.CalculateTotalTime() : 0;
+                decimal round2Time = round2Participant != null ? round2Participant.CalculateTotalTime() : 0;
                 
                 // Se o participante não tem tempo em uma rodada, considerar o tempo da outra rodada
                 if (round1Time == 0 && round2Time > 0)
@@ -153,7 +153,7 @@ namespace CompetitionApp.Pages.Results
                     else
                     {
                         string bestRound = round1Time <= round2Time ? "Rodada 1" : "Rodada 2";
-                        int bestTime = Math.Min(round1Time, round2Time);
+                        decimal bestTime = Math.Min(round1Time, round2Time);
                         
                         FinalResults.Add(new FinalResult
                         {
@@ -178,9 +178,9 @@ namespace CompetitionApp.Pages.Results
     public class FinalResult
     {
         public string Name { get; set; } = string.Empty;
-        public int Round1Time { get; set; }
-        public int Round2Time { get; set; }
-        public int BestTime { get; set; }
+        public decimal Round1Time { get; set; }
+        public decimal Round2Time { get; set; }
+        public decimal BestTime { get; set; }
         public string BestRound { get; set; } = string.Empty;
     }
 }
