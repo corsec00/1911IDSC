@@ -23,7 +23,8 @@ else
             Registro de Resultados
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" id="resultForm">
+                <input type="hidden" id="isEditing" name="IsEditing" value="false" />
                 <div class="form-group mb-3">
                     <label for="participantSelect">Selecione o Participante:</label>
                     <select id="participantSelect" name="ParticipantName" class="form-control" required>
@@ -33,7 +34,7 @@ else
                             var completed = Model.Round1Results.Any(r => r.Name == participant.Name);
                             if (completed)
                             {
-                                <option value="@participant.Name" disabled>@participant.Name (Já registrado)</option>
+                                <option value="@participant.Name" data-completed="true">@participant.Name (Já registrado)</option>
                             }
                             else
                             {
@@ -45,8 +46,8 @@ else
 
                 <div class="form-group mb-3">
                     <label for="timeInSeconds">Tempo (em segundos):</label>
-                    <input type="number" id="timeInSeconds" name="TimeInSeconds" class="form-control" min="0" max="@config.DisqualifiedValue" required />
-                    <small class="form-text text-muted">Use @config.DisqualifiedValue para indicar que o participante foi desclassificado.</small>
+                    <input type="number" id="timeInSeconds" name="TimeInSeconds" class="form-control" min="0" max="@config.DisqualifiedValue" step="0.001" required />
+                    <small class="form-text text-muted">Use @config.DisqualifiedValue para indicar que o participante foi desclassificado. Você pode inserir até 3 casas decimais (ex: 120,341).</small>
                 </div>
 
                 <div class="row">
@@ -91,8 +92,60 @@ else
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Registrar Resultado</button>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary" id="submitButton">Registrar Resultado</button>
+                    <button type="button" class="btn btn-secondary" id="cancelButton" style="display:none;" onclick="cancelEdit()">Cancelar Edição</button>
+                </div>
             </form>
+            
+            <script>
+                function editResult(name, time, bravo, charlie, miss, falta, vitima, plate) {
+                    // Marcar que estamos editando
+                    document.getElementById('isEditing').value = 'true';
+                    
+                    // Selecionar o participante
+                    const select = document.getElementById('participantSelect');
+                    for (let i = 0; i < select.options.length; i++) {
+                        if (select.options[i].value === name) {
+                            select.options[i].selected = true;
+                            select.options[i].disabled = false;
+                            break;
+                        }
+                    }
+                    
+                    // Preencher os campos com os valores atuais
+                    document.getElementById('timeInSeconds').value = time;
+                    document.getElementById('bravoCount').value = bravo;
+                    document.getElementById('charlieCount').value = charlie;
+                    document.getElementById('missCount').value = miss;
+                    document.getElementById('faltaCount').value = falta;
+                    document.getElementById('vitimaCount').value = vitima;
+                    document.getElementById('plateCount').value = plate;
+                    
+                    // Atualizar o texto do botão e mostrar o botão cancelar
+                    document.getElementById('submitButton').textContent = 'Atualizar Resultado';
+                    document.getElementById('cancelButton').style.display = 'inline-block';
+                    
+                    // Rolar para o formulário
+                    document.getElementById('resultForm').scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                function cancelEdit() {
+                    // Resetar o formulário
+                    document.getElementById('resultForm').reset();
+                    document.getElementById('isEditing').value = 'false';
+                    document.getElementById('submitButton').textContent = 'Registrar Resultado';
+                    document.getElementById('cancelButton').style.display = 'none';
+                    
+                    // Reabilitar as opções disabled
+                    const select = document.getElementById('participantSelect');
+                    for (let i = 0; i < select.options.length; i++) {
+                        if (select.options[i].getAttribute('data-completed') === 'true') {
+                            select.options[i].disabled = true;
+                        }
+                    }
+                }
+            </script>
         </div>
     </div>
 
@@ -143,13 +196,19 @@ else
                                         <td>@result.FaltaCount</td>
                                         <td>@result.VitimaCount</td>
                                         <td>@result.PlateCount</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds}s")</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime()}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime():F3}s")</td>
                                         <td>
-                                            <form method="post" asp-page-handler="Remove">
-                                                <input type="hidden" name="name" value="@result.Name" />
-                                                <button type="submit" class="btn btn-sm btn-danger">Remover</button>
-                                            </form>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-primary" 
+                                                        onclick="editResult('@result.Name', @result.TimeInSeconds, @result.BravoCount, @result.CharlieCount, @result.MissCount, @result.FaltaCount, @result.VitimaCount, @result.PlateCount)">
+                                                    Editar
+                                                </button>
+                                                <form method="post" asp-page-handler="Remove" class="d-inline">
+                                                    <input type="hidden" name="name" value="@result.Name" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">Remover</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 }

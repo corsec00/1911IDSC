@@ -1,0 +1,80 @@
+@page
+@model CompetitionApp.Pages.History.ParticipantHistoryModel
+@{
+    ViewData["Title"] = "Histórico de Participante";
+}
+
+<h1>Histórico de Participante</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Buscar Participante
+    </div>
+    <div class="card-body">
+        <form method="get">
+            <div class="form-group mb-3">
+                <label for="participantName">Nome do Participante:</label>
+                <input type="text" id="participantName" name="ParticipantName" class="form-control" value="@Model.ParticipantName" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ParticipantName))
+{
+    <div class="card">
+        <div class="card-header">
+            Resultados de @Model.ParticipantName
+        </div>
+        <div class="card-body">
+            @if (Model.Results == null || !Model.Results.Any())
+            {
+                <p>Nenhum resultado encontrado para este participante.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Competição</th>
+                                <th>Rodada</th>
+                                <th>Tempo Base</th>
+                                <th>Bravo</th>
+                                <th>Charlie</th>
+                                <th>Miss</th>
+                                <th>Fault</th>
+                                <th>Vítima</th>
+                                <th>Plate</th>
+                                <th>Tempo Total</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var result in Model.Results.OrderByDescending(r => r.CreatedAt))
+                            {
+                                <tr>
+                                    <td>@result.CompetitionName</td>
+                                    <td>@result.RoundNumber</td>
+                                    <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
+                                    <td>@result.BravoCount</td>
+                                    <td>@result.CharlieCount</td>
+                                    <td>@result.MissCount</td>
+                                    <td>@result.FaltaCount</td>
+                                    <td>@result.VitimaCount</td>
+                                    <td>@result.PlateCount</td>
+                                    <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TotalTime:F3}s")</td>
+                                    <td>@result.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+}

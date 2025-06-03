@@ -75,10 +75,10 @@
                     <tr>
                         <td>@(i + 1)</td>
                         <td>@result.Name</td>
-                        <td>@(result.BestTime == 999 ? "Eliminado" : $"{result.BestTime}s")</td>
+                        <td>@(result.BestTime == 999 ? "Eliminado" : $"{result.BestTime:F3}s")</td>
                         <td>@result.BestRound</td>
-                        <td>@(result.Round1Time == 999 ? "Eliminado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time}s"))</td>
-                        <td>@(result.Round2Time == 999 ? "Eliminado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time}s"))</td>
+                        <td>@(result.Round1Time == 999 ? "Eliminado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time:F3}s"))</td>
+                        <td>@(result.Round2Time == 999 ? "Eliminado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time:F3}s"))</td>
                     </tr>
                 }
             </tbody>
@@ -117,8 +117,8 @@
                             <td>@result.CharlieCount</td>
                             <td>@result.MissCount</td>
                             <td>@result.FaltaCount</td>
-                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.TimeInSeconds}s")</td>
-                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime()}s")</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.TimeInSeconds:F3}s")</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime():F3}s")</td>
                         </tr>
                     }
                 }
@@ -158,8 +158,8 @@
                             <td>@result.CharlieCount</td>
                             <td>@result.MissCount</td>
                             <td>@result.FaltaCount</td>
-                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.TimeInSeconds}s")</td>
-                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime()}s")</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.TimeInSeconds:F3}s")</td>
+                            <td>@(result.IsEliminated ? "Eliminado" : $"{result.CalculateTotalTime():F3}s")</td>
                         </tr>
                     }
                 }
