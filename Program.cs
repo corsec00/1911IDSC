@@ -1,5 +1,3 @@
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using CompetitionApp.Managers;
 using CompetitionApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -41,12 +39,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.Razor.RazorViewEngineOptions
 });
 
 // Configure Azure Key Vault
-var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
-if (!string.IsNullOrEmpty(keyVaultUri))
-{
-    var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
-    builder.Services.AddSingleton(secretClient);
-}
+// Código removido para eliminar a dependência do Azure Key Vault
 
 // Register Azure Table Storage services
 builder.Services.AddScoped<ITableStorageService, TableStorageService>();
