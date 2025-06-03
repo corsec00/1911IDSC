@@ -1,6 +1,5 @@
 using Azure;
 using Azure.Data.Tables;
-using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -21,13 +20,11 @@ namespace CompetitionApp.Services
 
     public class TableStorageService : ITableStorageService
     {
-        private readonly SecretClient _secretClient;
         private readonly IConfiguration _configuration;
         private string _connectionString;
 
-        public TableStorageService(SecretClient secretClient, IConfiguration configuration)
+        public TableStorageService(IConfiguration configuration)
         {
-            _secretClient = secretClient;
             _configuration = configuration;
         }
 
@@ -35,9 +32,26 @@ namespace CompetitionApp.Services
         {
             if (string.IsNullOrEmpty(_connectionString))
             {
-                var secretName = _configuration["AzureTableStorage:ConnectionStringSecretName"];
-                var secret = await _secretClient.GetSecretAsync(secretName);
-                _connectionString = secret.Value.Value;
+                bool useEnvVar = _configuration.GetValue<bool>("AzureTableStorage:UseEnvironmentVariable");
+                string envVarName = _configuration["AzureTableStorage:EnvironmentVariableName"];
+                
+                if (useEnvVar && !string.IsNullOrEmpty(envVarName))
+                {
+                    // Obter a connection string da variável de ambiente
+                    _connectionString = Environment.GetEnvironmentVariable(envVarName);
+                }
+                
+                // Se não encontrou na variável de ambiente, tentar obter da configuração
+                if (string.IsNullOrEmpty(_connectionString))
+                {
+                    _connectionString = _configuration["AzureTableStorage:ConnectionString"];
+                }
+                
+                // Se ainda não encontrou, usar o emulador local para desenvolvimento
+                if (string.IsNullOrEmpty(_connectionString))
+                {
+                    _connectionString = "UseDevelopmentStorage=true";
+                }
             }
             return _connectionString;
         }

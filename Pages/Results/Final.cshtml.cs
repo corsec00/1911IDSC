@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
 using CompetitionApp.Pages.Configuration;
+using System.Collections.Generic;
 
 namespace CompetitionApp.Pages.Results
 {
@@ -18,7 +19,7 @@ namespace CompetitionApp.Pages.Results
         
         public List<Participant> Round1Results { get; set; } = new List<Participant>();
         public List<Participant> Round2Results { get; set; } = new List<Participant>();
-        public List<FinalResult> FinalResults { get; set; } = new List<FinalResult>();
+        public List<Models.FinalResult> FinalResults { get; set; } = new List<Models.FinalResult>();
         
         [TempData]
         public string StatusMessage { get; set; }
@@ -45,7 +46,7 @@ namespace CompetitionApp.Pages.Results
             FinalResults = await CalculateFinalResultsAsync();
             
             // Salvar os resultados finais no Azure Storage
-            await _competitionManager.SaveFinalResultsAsync(FinalResults);
+            await _competitionManager.SaveFinalResultsAsync(FinalResults.ToList());
             
             StatusMessage = "Resultados salvos com sucesso no Azure Storage!";
             return RedirectToPage();
@@ -88,12 +89,5 @@ namespace CompetitionApp.Pages.Results
         }
     }
     
-    public class FinalResult
-    {
-        public string Name { get; set; } = string.Empty;
-        public decimal Round1Time { get; set; }
-        public decimal Round2Time { get; set; }
-        public decimal BestTime { get; set; }
-        public string BestRound { get; set; } = string.Empty;
-    }
+    // Usando a classe FinalResult do namespace CompetitionApp.Models
 }
