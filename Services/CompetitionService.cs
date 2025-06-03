@@ -47,8 +47,8 @@ namespace CompetitionApp.Services
             {
                 Name = name,
                 Description = description,
-                Date = date,
-                CreatedAt = DateTime.Now
+                Date = DateTime.SpecifyKind(date, DateTimeKind.Utc),
+                CreatedAt = DateTime.UtcNow
             };
 
             await _tableStorageService.AddEntityAsync(TableName, competition);
