@@ -3,3 +3,4 @@
 *.ps1
 /bin
 /Versions/temp/*.zip
+temp.txt
