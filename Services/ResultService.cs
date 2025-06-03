@@ -80,8 +80,8 @@ namespace CompetitionApp.Services
             resultEntity.CharlieCount = result.CharlieCount;
             resultEntity.MissCount = result.MissCount;
             resultEntity.FaltaCount = result.FaltaCount;
-            resultEntity.VitimaCount = result.VitimaCount;
-            resultEntity.PlateCount = result.PlateCount;
+            resultEntity.VitimaCount = result.VitimaCount ?? 0;
+            resultEntity.PlateCount = result.PlateCount ?? 0;
             resultEntity.TotalTime = result.CalculateTotalTime();
             resultEntity.IsEliminated = result.IsEliminated;
             resultEntity.UpdatedAt = DateTime.Now;

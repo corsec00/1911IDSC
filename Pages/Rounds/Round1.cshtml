@@ -54,19 +54,31 @@ else
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label for="bravoCount">Bravo (@config.BravoValue s):</label>
-                            <input type="number" id="bravoCount" name="BravoCount" class="form-control" min="0" value="0" required />
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('bravoCount')">-</button>
+                                <input type="number" id="bravoCount" name="BravoCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('bravoCount')">+</button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label for="charlieCount">Charlie (@config.CharlieValue s):</label>
-                            <input type="number" id="charlieCount" name="CharlieCount" class="form-control" min="0" value="0" required />
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('charlieCount')">-</button>
+                                <input type="number" id="charlieCount" name="CharlieCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('charlieCount')">+</button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label for="missCount">Miss (@config.MissValue s):</label>
-                            <input type="number" id="missCount" name="MissCount" class="form-control" min="0" value="0" required />
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('missCount')">-</button>
+                                <input type="number" id="missCount" name="MissCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('missCount')">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -75,19 +87,31 @@ else
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label for="faltaCount">Fault (@config.FaultValue s):</label>
-                            <input type="number" id="faltaCount" name="FaltaCount" class="form-control" min="0" value="0" required />
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('faltaCount')">-</button>
+                                <input type="number" id="faltaCount" name="FaltaCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('faltaCount')">+</button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label for="vitimaCount">Vítima (@config.VitimaValue s):</label>
-                            <input type="number" id="vitimaCount" name="VitimaCount" class="form-control" min="0" value="0" required />
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('vitimaCount')">-</button>
+                                <input type="number" id="vitimaCount" name="VitimaCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('vitimaCount')">+</button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label for="plateCount">Plate (@config.PlateValue s):</label>
-                            <input type="number" id="plateCount" name="PlateCount" class="form-control" min="0" value="0" required />
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('plateCount')">-</button>
+                                <input type="number" id="plateCount" name="PlateCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('plateCount')">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -99,6 +123,20 @@ else
             </form>
             
             <script>
+                function incrementValue(fieldId) {
+                    const field = document.getElementById(fieldId);
+                    const currentValue = parseInt(field.value) || 0;
+                    field.value = currentValue + 1;
+                }
+                
+                function decrementValue(fieldId) {
+                    const field = document.getElementById(fieldId);
+                    const currentValue = parseInt(field.value) || 0;
+                    if (currentValue > 0) {
+                        field.value = currentValue - 1;
+                    }
+                }
+                
                 function editResult(name, time, bravo, charlie, miss, falta, vitima, plate) {
                     // Marcar que estamos editando
                     document.getElementById('isEditing').value = 'true';
@@ -145,6 +183,33 @@ else
                         }
                     }
                 }
+                
+                // Desabilitar a edição direta dos campos numéricos
+                document.addEventListener('DOMContentLoaded', function() {
+                    const numericFields = ['bravoCount', 'charlieCount', 'missCount', 'faltaCount', 'vitimaCount', 'plateCount'];
+                    
+                    numericFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        
+                        // Prevenir entrada de teclado
+                        field.addEventListener('keydown', function(e) {
+                            e.preventDefault();
+                            return false;
+                        });
+                        
+                        // Prevenir colar conteúdo
+                        field.addEventListener('paste', function(e) {
+                            e.preventDefault();
+                            return false;
+                        });
+                        
+                        // Prevenir arrastar e soltar
+                        field.addEventListener('drop', function(e) {
+                            e.preventDefault();
+                            return false;
+                        });
+                    });
+                });
             </script>
         </div>
     </div>

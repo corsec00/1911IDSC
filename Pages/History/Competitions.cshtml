@@ -8,8 +8,37 @@
 
 <div class="card mb-4">
     <div class="card-header">
-        Competições Anteriores
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Competições Anteriores</span>
+            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                <i class="bi bi-funnel"></i> Filtros
+            </button>
+        </div>
     </div>
+    
+    <div class="collapse" id="filterCollapse">
+        <div class="card-body bg-light">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label">Nome da Competição</label>
+                    <input type="text" class="form-control" id="nameFilter" name="NameFilter" value="@Model.NameFilter">
+                </div>
+                <div class="col-md-4">
+                    <label for="startDate" class="form-label">Data de Registro (Início)</label>
+                    <input type="date" class="form-control" id="startDate" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))">
+                </div>
+                <div class="col-md-4">
+                    <label for="endDate" class="form-label">Data de Registro (Fim)</label>
+                    <input type="date" class="form-control" id="endDate" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))">
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a asp-page="./Competitions" class="btn btn-secondary">Limpar Filtros</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <div class="card-body">
         @if (!Model.Competitions.Any())
         {
@@ -22,7 +51,8 @@
                     <thead>
                         <tr>
                             <th>Nome</th>
-                            <th>Data</th>
+                            <th>Data da Competição</th>
+                            <th>Data de Registro</th>
                             <th>Descrição</th>
                             <th>Ações</th>
                         </tr>
@@ -33,6 +63,7 @@
                             <tr>
                                 <td>@competition.Name</td>
                                 <td>@competition.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@competition.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>@competition.Description</td>
                                 <td>
                                     <form method="post" asp-page-handler="Select">
