@@ -8,6 +8,14 @@
 
 <h1>Resultados Finais da Competição</h1>
 
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Sucesso!</strong> @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="mb-3">
     <a asp-page="/Configuration/PenaltyConfig" class="btn btn-outline-primary btn-sm">
         <i class="bi bi-gear"></i> Configurar Penalidades
@@ -23,8 +31,13 @@
 else
 {
     <div class="card mb-4">
-        <div class="card-header">
-            Classificação Final (Baseada no Melhor Tempo)
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Classificação Final (Baseada no Melhor Tempo)</span>
+            <form method="post" asp-page-handler="SaveToStorage">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi bi-cloud-upload"></i> Salvar no Azure Storage
+                </button>
+            </form>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -59,6 +72,9 @@ else
         <div class="card-footer">
             <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
             <a asp-page="/Results/ExportPdf" class="btn btn-success">Exportar para PDF</a>
+            <a asp-page="/History/Competitions" class="btn btn-info">
+                <i class="bi bi-clock-history"></i> Ver Histórico
+            </a>
         </div>
     </div>
     
