@@ -8,7 +8,7 @@ namespace CompetitionApp.Models
     {
         [Display(Name = "Bravo")]
         [Range(0, 100, ErrorMessage = "O valor deve estar entre 0 e 100 segundos")]
-        public int BravoValue { get; set; } = 3; // Valor padrão
+        public int BravoValue { get; set; } = 2; // Valor padrão
 
         [Display(Name = "Charlie")]
         [Range(0, 100, ErrorMessage = "O valor deve estar entre 0 e 100 segundos")]
@@ -20,15 +20,15 @@ namespace CompetitionApp.Models
 
         [Display(Name = "Vítima")]
         [Range(0, 100, ErrorMessage = "O valor deve estar entre 0 e 100 segundos")]
-        public int VitimaValue { get; set; } = 15; // Valor padrão
+        public int VitimaValue { get; set; } = 10; // Valor padrão
 
         [Display(Name = "Plate")]
         [Range(0, 100, ErrorMessage = "O valor deve estar entre 0 e 100 segundos")]
-        public int PlateValue { get; set; } = 7; // Valor padrão
+        public int PlateValue { get; set; } = 10; // Valor padrão
 
         [Display(Name = "Fault")]
         [Range(0, 100, ErrorMessage = "O valor deve estar entre 0 e 100 segundos")]
-        public int FaultValue { get; set; } = 10; // Valor padrão
+        public int FaultValue { get; set; } = 15; // Valor padrão
 
         [Display(Name = "Desclassificado")]
         [Range(0, 9999, ErrorMessage = "O valor deve estar entre 0 e 9999 segundos")]
