@@ -59,10 +59,6 @@
               "target": "Package",
               "version": "[1.10.4, )"
             },
-            "Azure.Security.KeyVault.Secrets": {
-              "target": "Package",
-              "version": "[4.5.0, )"
-            },
             "itext7": {
               "target": "Package",
               "version": "[8.0.2, )"

@@ -1,13 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "1gC/x63gmAU=",
+  "dgSpecHash": "gwsJ3xZ7IoY=",
   "success": true,
   "projectFilePath": "C:\\Users\\corse\\Pipeline\\1911SC\\CompetitionApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\corse\\.nuget\\packages\\azure.core\\1.36.0\\azure.core.1.36.0.nupkg.sha512",
     "C:\\Users\\corse\\.nuget\\packages\\azure.data.tables\\12.8.2\\azure.data.tables.12.8.2.nupkg.sha512",
     "C:\\Users\\corse\\.nuget\\packages\\azure.identity\\1.10.4\\azure.identity.1.10.4.nupkg.sha512",
-    "C:\\Users\\corse\\.nuget\\packages\\azure.security.keyvault.secrets\\4.5.0\\azure.security.keyvault.secrets.4.5.0.nupkg.sha512",
     "C:\\Users\\corse\\.nuget\\packages\\bouncycastle.cryptography\\2.2.1\\bouncycastle.cryptography.2.2.1.nupkg.sha512",
     "C:\\Users\\corse\\.nuget\\packages\\itext\\8.0.2\\itext.8.0.2.nupkg.sha512",
     "C:\\Users\\corse\\.nuget\\packages\\itext.bouncy-castle-adapter\\8.0.2\\itext.bouncy-castle-adapter.8.0.2.nupkg.sha512",

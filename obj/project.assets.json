@@ -63,25 +63,6 @@
           }
         }
       },
-      "Azure.Security.KeyVault.Secrets/4.5.0": {
-        "type": "package",
-        "dependencies": {
-          "Azure.Core": "1.30.0",
-          "System.Memory": "4.5.4",
-          "System.Text.Json": "4.7.2",
-          "System.Threading.Tasks.Extensions": "4.5.4"
-        },
-        "compile": {
-          "lib/netstandard2.0/Azure.Security.KeyVault.Secrets.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Azure.Security.KeyVault.Secrets.dll": {
-            "related": ".xml"
-          }
-        }
-      },
       "BouncyCastle.Cryptography/2.2.1": {
         "type": "package",
         "compile": {
@@ -1758,22 +1739,6 @@
         "azureicon.png",
         "lib/netstandard2.0/Azure.Identity.dll",
         "lib/netstandard2.0/Azure.Identity.xml"
-      ]
-    },
-    "Azure.Security.KeyVault.Secrets/4.5.0": {
-      "sha512": "ztr26Ai4K7AZGuw68/ffLDn+2G3WL0myjC7nY1RYkxPMnsplTPEH+Ke4RGxvSkg4kC7bJ9NwdlqpEwfDX0qhdw==",
-      "type": "package",
-      "path": "azure.security.keyvault.secrets/4.5.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "CHANGELOG.md",
-        "README.md",
-        "azure.security.keyvault.secrets.4.5.0.nupkg.sha512",
-        "azure.security.keyvault.secrets.nuspec",
-        "azureicon.png",
-        "lib/netstandard2.0/Azure.Security.KeyVault.Secrets.dll",
-        "lib/netstandard2.0/Azure.Security.KeyVault.Secrets.xml"
       ]
     },
     "BouncyCastle.Cryptography/2.2.1": {
@@ -5576,7 +5541,6 @@
     "net8.0": [
       "Azure.Data.Tables >= 12.8.2",
       "Azure.Identity >= 1.10.4",
-      "Azure.Security.KeyVault.Secrets >= 4.5.0",
       "itext7 >= 8.0.2",
       "itext7.bouncy-castle-adapter >= 8.0.2"
     ]
@@ -5639,10 +5603,6 @@
           "Azure.Identity": {
             "target": "Package",
             "version": "[1.10.4, )"
-          },
-          "Azure.Security.KeyVault.Secrets": {
-            "target": "Package",
-            "version": "[4.5.0, )"
           },
           "itext7": {
             "target": "Package",
