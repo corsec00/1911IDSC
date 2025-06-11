@@ -1,71 +1,64 @@
-# Integração de Banco de Dados para CompetitionApp
+# Aplicação de Gerenciamento de Competição
 
-Este projeto implementa a integração de um banco de dados persistente (Azure Table Storage) para a aplicação CompetitionApp, permitindo o armazenamento e consulta de histórico de competições e participantes.
+Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competições com até 30 participantes, registrando tempos e penalidades em duas rodadas e gerando uma classificação final baseada no melhor tempo.
 
-## Visão Geral
+## Funcionalidades
 
-A solução implementa:
+- Cadastro de até 30 participantes
+- Configuração personalizada de penalidades
+- Registro de tempos e penalidades em duas rodadas
+- Classificação automática baseada no melhor tempo entre as rodadas
+- Exportação dos resultados para PDF
 
-1. **Armazenamento persistente** usando Azure Table Storage (escolhido por seu baixo custo)
-2. **Gerenciamento seguro de credenciais** usando Azure Key Vault
-3. **Histórico de competições e participantes** com consultas eficientes
-4. **Guia passo a passo** para configuração dos recursos no Azure
+## Configuração de Penalidades
 
-## Estrutura do Projeto
+A aplicação permite configurar os valores (em segundos) para cada tipo de penalidade:
 
-Este diretório contém a documentação e código necessários para implementar a integração com banco de dados:
+- **Bravo**: Penalidade leve (padrão: 3s)
+- **Charlie**: Penalidade média (padrão: 5s)
+- **Miss**: Penalidade por erro de alvo (padrão: 10s)
+- **Vítima**: Penalidade por atingir vítima (padrão: 10s)
+- **Plate**: Penalidade por erro em plate (padrão: 5s)
+- **Fault**: Penalidade por falta (padrão: 10s)
+- **Desclassificado**: Valor para indicar desclassificação (padrão: 999s)
 
-- `DataModel.md` - Modelo de dados para Azure Table Storage
-- `AzureStorageIntegration.md` - Código de integração com Azure Table Storage e Key Vault
-- `ApplicationLogicUpdate.md` - Atualização da lógica da aplicação para usar armazenamento persistente
-- `AzureConfigurationGuide.md` - Guia passo a passo para configuração dos recursos no Azure
+## Como Usar
 
-## Por que Azure Table Storage?
+### 1. Configurar Penalidades
 
-Após análise comparativa entre Azure Table Storage e Cosmos DB, o Azure Table Storage foi escolhido por:
+Antes de iniciar a competição, acesse a página de configuração de penalidades para definir os valores desejados para cada tipo de penalidade.
 
-1. **Custo significativamente menor** - Ideal para aplicações com orçamento limitado
-2. **Simplicidade** - API fácil de usar para operações CRUD
-3. **Escalabilidade adequada** - Suficiente para o volume de dados esperado
-4. **Baixo custo de transações** - Econômico mesmo com uso frequente
+### 2. Cadastrar Participantes
 
-## Modelo de Dados
+Cadastre os participantes da competição (até 30) informando seus nomes.
 
-O modelo de dados foi projetado para otimizar consultas por competição e participante:
+### 3. Registrar Resultados da Primeira Rodada
 
-1. **CompetitionTable** - Armazena informações sobre competições
-2. **ParticipantTable** - Armazena informações sobre participantes
-3. **ResultTable** - Armazena resultados de cada rodada
-4. **FinalResultTable** - Armazena resultados finais de cada competição
+Para cada participante, registre:
+- Tempo base em segundos
+- Quantidade de cada tipo de penalidade (Bravo, Charlie, Miss, etc.)
 
-## Segurança
+### 4. Registrar Resultados da Segunda Rodada
 
-As credenciais de acesso ao Azure Table Storage são armazenadas de forma segura no Azure Key Vault, seguindo as melhores práticas de segurança:
+Repita o processo para a segunda rodada.
 
-1. **Sem credenciais hardcoded** no código-fonte
-2. **Acesso baseado em identidade** usando identidades gerenciadas do Azure
-3. **Princípio de privilégio mínimo** para acesso aos recursos
+### 5. Visualizar Classificação Final
 
-## Implementação
+A classificação final é calculada automaticamente com base no melhor tempo entre as duas rodadas.
 
-A implementação mantém compatibilidade com o fluxo atual da aplicação, adicionando:
+### 6. Exportar Resultados
 
-1. **Persistência transparente** - Dados são salvos automaticamente no Azure Table Storage
-2. **Novas páginas de histórico** - Para visualizar competições e resultados anteriores
-3. **Gerenciamento de competições** - Possibilidade de alternar entre competições
+Exporte os resultados para PDF para impressão ou arquivamento.
 
-## Estimativa de Custos
+## Requisitos Técnicos
 
-Para uma aplicação de pequeno a médio porte:
+- .NET 8.0 ou superior
+- Navegador web moderno (Chrome, Firefox, Edge, Safari)
 
-- **Azure Table Storage**: $1-5/mês
-- **Azure Key Vault**: $0-1/mês
-- **Total (excluindo App Service)**: $1-6/mês
+## Implantação no Azure
 
-## Próximos Passos
+Para implantar esta aplicação no Azure Web App, siga as instruções detalhadas no arquivo `AzureDeploymentInstructions.md`.
 
-Para implementar esta solução:
+## Execução Local
 
-1. Siga o guia de configuração do Azure em `AzureConfigurationGuide.md`
-2. Adicione os novos arquivos e atualize os existentes conforme documentado
-3. Implante a aplicação atualizada no Azure App Service
+Para executar a aplicação localmente, siga as instruções no arquivo `LocalRunInstructions.md`.
