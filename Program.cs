@@ -1,3 +1,4 @@
+using CompetitionApp.Infrastructure;
 using CompetitionApp.Managers;
 using CompetitionApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,9 @@ builder.Services.AddRazorPages()
         // Configure model binding to accept both comma and dot as decimal separators
         options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
             _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
+            
+        // Adicionar o DecimalModelBinderProvider para lidar com números decimais em todas as plataformas
+        options.ModelBinderProviders.Insert(0, new Infrastructure.DecimalModelBinderProvider());
     });
 
 // Configure globalization options to support multiple cultures
