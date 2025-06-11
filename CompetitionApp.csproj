@@ -13,4 +13,8 @@
     <PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="Infrastructure\**\*.cs" />
+  </ItemGroup>
+
 </Project>
