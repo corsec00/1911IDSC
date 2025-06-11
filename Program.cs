@@ -1,4 +1,3 @@
-using CompetitionApp.Infrastructure;
 using CompetitionApp.Managers;
 using CompetitionApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +13,17 @@ builder.Services.AddRazorPages()
     {
         // Configure Razor Pages options if needed
     })
-    .AddMvcOptions(options =>
-    {
-        // Configure model binding to accept both comma and dot as decimal separators
-        options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
-            _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
-            
-        // Adicionar o DecimalModelBinderProvider para lidar com números decimais em todas as plataformas
-        options.ModelBinderProviders.Insert(0, new Infrastructure.DecimalModelBinderProvider());
-    });
-
+.AddMvcOptions(options =>
+{
+    // Configure model binding to accept both comma and dot as decimal separators
+    options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
+        _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
+})
+// Adicione esta configuração para aceitar tanto vírgula quanto ponto como separador decimal
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+});
 // Configure globalization options to support multiple cultures
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -73,6 +73,33 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.Use(async (context, next) =>
+{
+    // Normalizar valores decimais no formulário
+    if (context.Request.HasFormContentType && context.Request.Method == "POST")
+    {
+        var form = await context.Request.ReadFormAsync();
+        foreach (var key in form.Keys)
+        {
+            if (form[key].Count > 0 && !string.IsNullOrEmpty(form[key][0]))
+            {
+                // Substituir vírgula por ponto para garantir parsing correto
+                var value = form[key][0].Replace(',', '.');
+                context.Request.Form = new Microsoft.AspNetCore.Http.FormCollection(
+                    new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(
+                        context.Request.Form.ToDictionary(
+                            x => x.Key,
+                            x => x.Key == key ? new Microsoft.Extensions.Primitives.StringValues(value) : x.Value
+                        )
+                    ),
+                    context.Request.Form.Files
+                );
+            }
+        }
+    }
+    await next();
+});
 
 app.UseRouting();
 app.UseSession();
