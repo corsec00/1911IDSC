@@ -1,5 +1,13 @@
 # Aplicação de Gerenciamento de IDSC 1911
 ![Build Status](https://github.com/corsec00/1911IDSC/actions/workflows/azure-deploy.yml/badge.svg)
+[![codecov](https://codecov.io/gh/corsec00/1911IDSC/branch/main/graph/badge.svg)](https://codecov.io/gh/corsec00/1911IDSC)
+![.NET](https://img.shields.io/badge/.NET-8.0-blue)
+![License](https://img.shields.io/github/license/corsec00/1911IDSC)
+![Último Release](https://img.shields.io/github/v/release/corsec00/1911IDSC)
+![Contributors](https://img.shields.io/github/contributors/corsec00/1911IDSC)
+![Issues](https://img.shields.io/github/issues/corsec00/1911IDSC)
+![Repo Size](https://img.shields.io/github/repo-size/corsec00/1911IDSC)
+
 ## Head
 Autor: Leonardo Santos Silva<br />
 Data Release: 14/06/2025<br />
