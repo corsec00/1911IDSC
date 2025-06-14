@@ -10,6 +10,9 @@
 Autor: Leonardo Santos Silva<br />
 Data Release: 14/06/2025<br />
 Status: Produção, V1.0.0<br />
+Testes: 
+- Windows: Microsoft Edge e Google Chrome
+- Android: Google Chrome
 
 ## Descrição
 Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competições com até 30 participantes, registrando tempos e penalidades em duas rodadas e gerando uma classificação final baseada no melhor tempo.
