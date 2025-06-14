@@ -1,9 +1,9 @@
 # Aplicação de Gerenciamento de IDSC 1911
 ![Build Status](https://github.com/corsec00/1911IDSC/actions/workflows/azure-deploy.yml/badge.svg)
 ## Head
-Autor: Leonardo Santos Silva
-Data Release: 14/06/2025
-Status: Produção, V1.0.0
+Autor: Leonardo Santos Silva<br />
+Data Release: 14/06/2025<br />
+Status: Produção, V1.0.0<br />
 
 ## Descrição
 Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competições com até 30 participantes, registrando tempos e penalidades em duas rodadas e gerando uma classificação final baseada no melhor tempo.
