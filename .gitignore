@@ -1,8 +1,8 @@
-/bin/
-/Versions/
-/DataModel/
-temp.txt
-/obj/
+bin/
+Versions/
+DataModel/
+obj/*
 *.PublishSettings
 *.SAConnectionStrings
 *.ps1
+temp.txt
