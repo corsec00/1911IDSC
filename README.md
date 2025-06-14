@@ -16,7 +16,7 @@ Testes:
 
 ## Descrição
 Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competições com até 30 participantes, registrando tempos e penalidades em duas rodadas e gerando uma classificação final baseada no melhor tempo.
-Link da Aplicação: https://1911idsc-esbqg7huarehd2ds.centralus-01.azurewebsites.net
+Link para a Aplicação: https://1911idsc-esbqg7huarehd2ds.centralus-01.azurewebsites.net
 ![Exemplo](img/paginaExemplo.jpg)
 
 ## Funcionalidades
