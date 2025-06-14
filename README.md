@@ -1,6 +1,8 @@
-# Aplicação de Gerenciamento de Competição
+# Aplicação de Gerenciamento de IDSC 1911
+![Build Status](https://github.com/corsec00/1911IDSC/actions/workflows/azure-deploy.yml/badge.svg)
 
 Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competições com até 30 participantes, registrando tempos e penalidades em duas rodadas e gerando uma classificação final baseada no melhor tempo.
+Link da Aplicação: https://1911idsc-esbqg7huarehd2ds.centralus-01.azurewebsites.net
 
 ## Funcionalidades
 
@@ -8,17 +10,17 @@ Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competiçõ
 - Configuração personalizada de penalidades
 - Registro de tempos e penalidades em duas rodadas
 - Classificação automática baseada no melhor tempo entre as rodadas
-- Exportação dos resultados para PDF
+- Exportação dos resultados
 
 ## Configuração de Penalidades
 
 A aplicação permite configurar os valores (em segundos) para cada tipo de penalidade:
 
-- **Bravo**: Penalidade leve (padrão: 3s)
+- **Bravo**: Penalidade leve (padrão: 2s)
 - **Charlie**: Penalidade média (padrão: 5s)
 - **Miss**: Penalidade por erro de alvo (padrão: 10s)
 - **Vítima**: Penalidade por atingir vítima (padrão: 10s)
-- **Plate**: Penalidade por erro em plate (padrão: 5s)
+- **Plate**: Penalidade por erro em plate (padrão: 10s)
 - **Fault**: Penalidade por falta (padrão: 10s)
 - **Desclassificado**: Valor para indicar desclassificação (padrão: 999s)
 
@@ -48,7 +50,7 @@ A classificação final é calculada automaticamente com base no melhor tempo en
 
 ### 6. Exportar Resultados
 
-Exporte os resultados para PDF para impressão ou arquivamento.
+Exporte os resultados para impressão ou arquivamento.
 
 ## Requisitos Técnicos
 
@@ -57,8 +59,6 @@ Exporte os resultados para PDF para impressão ou arquivamento.
 
 ## Implantação no Azure
 
-Para implantar esta aplicação no Azure Web App, siga as instruções detalhadas no arquivo `AzureDeploymentInstructions.md`.
+Para implantar esta aplicação no Azure Web App (Caso precise implementar no seu ambiente, entre em contato):
 
-## Execução Local
-
-Para executar a aplicação localmente, siga as instruções no arquivo `LocalRunInstructions.md`.
+![Infra Azure](img/InfraAzure.jpg)

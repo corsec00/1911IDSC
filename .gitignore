@@ -2,5 +2,6 @@
 *.SAConnectionStrings
 *.ps1
 /bin
-/Versions/temp/*.zip
+/Versions/*.zip
+/DataModel/
 temp.txt
