@@ -67,3 +67,7 @@ Exporte os resultados para impressão ou arquivamento.
 Para implantar esta aplicação no Azure Web App (Caso precise implementar no seu ambiente, entre em contato):
 
 ![Infra Azure](img/InfraAzure.jpg)
+
+## Configurações de Segurança
+
+Consulte [aqui](SecureConfigurationGuide.md)
