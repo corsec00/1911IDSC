@@ -1,7 +1,8 @@
+/bin/
+/Versions/
+/DataModel/
+temp.txt
+/obj/
 *.PublishSettings
 *.SAConnectionStrings
 *.ps1
-/bin
-/Versions/*.zip
-/DataModel/
-temp.txt
