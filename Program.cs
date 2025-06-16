@@ -21,7 +21,7 @@ builder.Services.AddRazorPages()
             _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
             
         // Adicionar o DecimalModelBinderProvider para lidar com números decimais em todas as plataformas
-        options.ModelBinderProviders.Insert(0, new Infrastructure.DecimalModelBinderProvider());
+        options.ModelBinderProviders.Insert(0, new DecimalModelBinderProvider());
     });
 
 // Configure globalization options to support multiple cultures
@@ -85,3 +85,4 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
