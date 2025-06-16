@@ -66,10 +66,13 @@
                                 <td>@competition.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>@competition.Description</td>
                                 <td>
-                                    <form method="post" asp-page-handler="Select">
-                                        <input type="hidden" name="competitionId" value="@competition.RowKey" />
-                                        <button type="submit" class="btn btn-sm btn-primary">Selecionar</button>
-                                    </form>
+                                    <div class="btn-group" role="group">
+                                        <a asp-page="./CompetitionDetails" asp-route-competitionId="@competition.RowKey" class="btn btn-sm btn-primary">Ver Detalhes</a>
+                                        <form method="post" asp-page-handler="Select">
+                                            <input type="hidden" name="competitionId" value="@competition.RowKey" />
+                                            <button type="submit" class="btn btn-sm btn-success">Selecionar</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         }

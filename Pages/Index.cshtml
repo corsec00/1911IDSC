@@ -2,23 +2,14 @@
 @model CompetitionApp.Pages.IndexModel
 @using CompetitionApp.Pages.Configuration
 @{
-    ViewData["Title"] = "1911 Shooting Club";
+    ViewData["Title"] = "Competição";
     var config = PenaltyConfigModel.GetCurrentConfiguration();
     var hasResults = Model.HasAnyResults;
 }
 
 <div class="text-center">
-    <h1 class="display-4">Sistema de Competição IDSC</h1>
-    <p>Bem-vindo ao sistema de gerenciamento de competição IDSC 1911 Shooting Club<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        
-    </body>
-    </html>.</p>
+    <h1 class="display-4">Sistema de Competição</h1>
+    <p>Bem-vindo ao sistema de gerenciamento de competição.</p>
     
     @if (TempData["SuccessMessage"] != null)
     {
@@ -134,7 +125,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Resultados</h5>
-                    <p class="card-text">Visualize os resultados finais da competição (em construção).</p>
+                    <p class="card-text">Visualize os resultados finais da competição.</p>
                     <a asp-page="/Results/Final" class="btn btn-success">Ver Resultados</a>
                 </div>
             </div>

@@ -1,0 +1,203 @@
+@page "{competitionId}"
+@model CompetitionApp.Pages.History.CompetitionDetailsModel
+@{
+    ViewData["Title"] = "Detalhes da Competição";
+}
+
+<h1>Detalhes da Competição</h1>
+
+@if (Model.Competition == null)
+{
+    <div class="alert alert-warning">
+        Competição não encontrada.
+    </div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>@Model.Competition.Name</h2>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Data da Competição:</strong> @Model.Competition.Date.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Data de Registro:</strong> @Model.Competition.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Descrição:</strong> @Model.Competition.Description</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados da Rodada 1 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Resultados da Rodada 1</h3>
+        </div>
+        <div class="card-body">
+            @if (!Model.Round1Results.Any())
+            {
+                <p>Nenhum resultado registrado para a Rodada 1.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Bravo</th>
+                                <th>Charlie</th>
+                                <th>Miss</th>
+                                <th>Fault</th>
+                                <th>Vítima</th>
+                                <th>Plate</th>
+                                <th>Tempo Base</th>
+                                <th>Tempo Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var sortedRound1Results = Model.Round1Results
+                                    .OrderBy(p => p.IsEliminated)
+                                    .ThenBy(p => p.TotalTime)
+                                    .ToList();
+
+                                for (int i = 0; i < sortedRound1Results.Count; i++)
+                                {
+                                    var result = sortedRound1Results[i];
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>@result.ParticipantName</td>
+                                        <td>@result.BravoCount</td>
+                                        <td>@result.CharlieCount</td>
+                                        <td>@result.MissCount</td>
+                                        <td>@result.FaltaCount</td>
+                                        <td>@result.VitimaCount</td>
+                                        <td>@result.PlateCount</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TotalTime:F3}s")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Resultados da Rodada 2 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Resultados da Rodada 2</h3>
+        </div>
+        <div class="card-body">
+            @if (!Model.Round2Results.Any())
+            {
+                <p>Nenhum resultado registrado para a Rodada 2.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Bravo</th>
+                                <th>Charlie</th>
+                                <th>Miss</th>
+                                <th>Fault</th>
+                                <th>Vítima</th>
+                                <th>Plate</th>
+                                <th>Tempo Base</th>
+                                <th>Tempo Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var sortedRound2Results = Model.Round2Results
+                                    .OrderBy(p => p.IsEliminated)
+                                    .ThenBy(p => p.TotalTime)
+                                    .ToList();
+
+                                for (int i = 0; i < sortedRound2Results.Count; i++)
+                                {
+                                    var result = sortedRound2Results[i];
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>@result.ParticipantName</td>
+                                        <td>@result.BravoCount</td>
+                                        <td>@result.CharlieCount</td>
+                                        <td>@result.MissCount</td>
+                                        <td>@result.FaltaCount</td>
+                                        <td>@result.VitimaCount</td>
+                                        <td>@result.PlateCount</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TotalTime:F3}s")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Resultados Finais -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Resultados Finais</h3>
+        </div>
+        <div class="card-body">
+            @if (!Model.FinalResults.Any())
+            {
+                <p>Nenhum resultado final registrado.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Tempo Rodada 1</th>
+                                <th>Tempo Rodada 2</th>
+                                <th>Melhor Tempo</th>
+                                <th>Melhor Rodada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var result in Model.FinalResults.OrderBy(r => r.Position))
+                            {
+                                <tr>
+                                    <td>@result.Position</td>
+                                    <td>@result.ParticipantName</td>
+                                    <td>@(result.Round1Time == 0 ? "N/A" : $"{result.Round1Time:F3}s")</td>
+                                    <td>@(result.Round2Time == 0 ? "N/A" : $"{result.Round2Time:F3}s")</td>
+                                    <td>@(result.BestTime == 0 ? "N/A" : $"{result.BestTime:F3}s")</td>
+                                    <td>@(result.BestRound == 1 ? "Rodada 1" : "Rodada 2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <a asp-page="./Competitions" class="btn btn-secondary">Voltar para Lista</a>
+        
+        <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Tem certeza que deseja excluir esta competição? Esta ação não pode ser desfeita.');">
+            <input type="hidden" name="competitionId" value="@Model.Competition.RowKey" />
+            <button type="submit" class="btn btn-danger">Excluir Competição</button>
+        </form>
+    </div>
+}
