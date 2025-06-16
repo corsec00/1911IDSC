@@ -1,5 +1,6 @@
 using CompetitionApp.Managers;
 using CompetitionApp.Models.Entities;
+using CompetitionApp.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
