@@ -179,16 +179,15 @@ namespace CompetitionApp.Managers
             results.Add(participant);
             SetInSession(Round1ResultsKey, results);
             
-            // Salvar no Azure Table Storage
-            var competitionId = await GetCurrentCompetitionIdAsync();
-            var competition = await GetCurrentCompetitionAsync();
-            
-            // Encontrar o ID do participante
-            var allParticipants = await _participantService.GetAllParticipantsAsync();
-            var participantEntity = allParticipants.FirstOrDefault(p => p.Name == participant.Name);
-            
-            if (participantEntity != null)
+            try
             {
+                // Salvar no Azure Table Storage
+                var competitionId = await GetCurrentCompetitionIdAsync();
+                var competition = await GetCurrentCompetitionAsync();
+                
+                // Registrar participante se não existir
+                var participantEntity = await _participantService.CreateParticipantAsync(participant.Name, "");
+                
                 await _resultService.SaveResultAsync(
                     competitionId,
                     competition.Name,
@@ -197,6 +196,13 @@ namespace CompetitionApp.Managers
                     1, // Round 1
                     participant
                 );
+                
+                Console.WriteLine($"Resultado da Rodada 1 salvo para {participant.Name}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao salvar resultado da Rodada 1 para {participant.Name}: {ex.Message}");
+                // Continua a execução mesmo com erro no Azure Storage
             }
         }
         
@@ -212,16 +218,15 @@ namespace CompetitionApp.Managers
             results.Add(participant);
             SetInSession(Round2ResultsKey, results);
             
-            // Salvar no Azure Table Storage
-            var competitionId = await GetCurrentCompetitionIdAsync();
-            var competition = await GetCurrentCompetitionAsync();
-            
-            // Encontrar o ID do participante
-            var allParticipants = await _participantService.GetAllParticipantsAsync();
-            var participantEntity = allParticipants.FirstOrDefault(p => p.Name == participant.Name);
-            
-            if (participantEntity != null)
+            try
             {
+                // Salvar no Azure Table Storage
+                var competitionId = await GetCurrentCompetitionIdAsync();
+                var competition = await GetCurrentCompetitionAsync();
+                
+                // Registrar participante se não existir
+                var participantEntity = await _participantService.CreateParticipantAsync(participant.Name, "");
+                
                 await _resultService.SaveResultAsync(
                     competitionId,
                     competition.Name,
@@ -230,6 +235,13 @@ namespace CompetitionApp.Managers
                     2, // Round 2
                     participant
                 );
+                
+                Console.WriteLine($"Resultado da Rodada 2 salvo para {participant.Name}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao salvar resultado da Rodada 2 para {participant.Name}: {ex.Message}");
+                // Continua a execução mesmo com erro no Azure Storage
             }
         }
         
@@ -373,14 +385,23 @@ namespace CompetitionApp.Managers
         
         public async Task SaveFinalResultsAsync(List<FinalResult> finalResults)
         {
-            var competitionId = await GetCurrentCompetitionIdAsync();
-            var competition = await GetCurrentCompetitionAsync();
-            
-            // Encontrar IDs dos participantes
-            var allParticipants = await _participantService.GetAllParticipantsAsync();
-            
-            // Calcular e salvar resultados finais
-            await _finalResultService.CalculateAndSaveFinalResultsAsync(competitionId, competition.Name);
+            try
+            {
+                var competitionId = await GetCurrentCompetitionIdAsync();
+                var competition = await GetCurrentCompetitionAsync();
+                
+                Console.WriteLine($"Salvando resultados finais para competição: {competition.Name} (ID: {competitionId})");
+                
+                // Calcular e salvar resultados finais
+                await _finalResultService.CalculateAndSaveFinalResultsAsync(competitionId, competition.Name);
+                
+                Console.WriteLine("Resultados finais salvos com sucesso no Azure Storage");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao salvar resultados finais: {ex.Message}");
+                throw; // Re-throw para que o erro seja capturado na UI
+            }
         }
         
         // Implementação dos métodos de histórico

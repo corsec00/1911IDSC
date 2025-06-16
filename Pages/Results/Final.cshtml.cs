@@ -42,14 +42,22 @@ namespace CompetitionApp.Pages.Results
         
         public async Task<IActionResult> OnPostSaveToStorageAsync()
         {
-            LoadData();
-            FinalResults = await CalculateFinalResultsAsync();
-            
-            // Salvar os resultados finais no Azure Storage
-            await _competitionManager.SaveFinalResultsAsync(FinalResults.ToList());
-            
-            StatusMessage = "Resultados salvos com sucesso no Azure Storage!";
-            return RedirectToPage();
+            try
+            {
+                LoadData();
+                FinalResults = await CalculateFinalResultsAsync();
+                
+                // Salvar os resultados finais no Azure Storage
+                await _competitionManager.SaveFinalResultsAsync(FinalResults.ToList());
+                
+                StatusMessage = "Resultados salvos com sucesso no Azure Storage!";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Erro ao salvar no Azure Storage: {ex.Message}";
+                return RedirectToPage();
+            }
         }
         
         private void LoadData()

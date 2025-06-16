@@ -1,4 +1,3 @@
-using CompetitionApp.Infrastructure;
 using CompetitionApp.Managers;
 using CompetitionApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -19,9 +18,6 @@ builder.Services.AddRazorPages()
         // Configure model binding to accept both comma and dot as decimal separators
         options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
             _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
-            
-        // Adicionar o DecimalModelBinderProvider para lidar com números decimais em todas as plataformas
-        options.ModelBinderProviders.Insert(0, new DecimalModelBinderProvider());
     });
 
 // Configure globalization options to support multiple cultures
@@ -74,6 +70,35 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// Adicione este middleware antes de app.UseRouting() para normalizar valores decimais
+app.Use(async (context, next) =>
+{
+    // Normalizar valores decimais no formulário
+    if (context.Request.HasFormContentType && context.Request.Method == "POST")
+    {
+        var form = await context.Request.ReadFormAsync();
+        var normalizedForm = new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>();
+        
+        foreach (var kvp in form)
+        {
+            if (!string.IsNullOrEmpty(kvp.Value) && kvp.Value.Count > 0)
+            {
+                // Substituir vírgula por ponto para garantir parsing correto de decimais
+                var normalizedValue = kvp.Value[0]?.Replace(',', '.') ?? kvp.Value[0];
+                normalizedForm[kvp.Key] = new Microsoft.Extensions.Primitives.StringValues(normalizedValue);
+            }
+            else
+            {
+                normalizedForm[kvp.Key] = kvp.Value;
+            }
+        }
+        
+        // Substituir o formulário original pelo normalizado
+        context.Request.Form = new Microsoft.AspNetCore.Http.FormCollection(normalizedForm, form.Files);
+    }
+    await next();
+});
+
 app.UseRouting();
 app.UseSession();
 
@@ -85,4 +110,3 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
-
