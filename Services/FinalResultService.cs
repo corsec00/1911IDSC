@@ -30,10 +30,20 @@ namespace CompetitionApp.Services
 
         public async Task<IEnumerable<FinalResultEntity>> GetFinalResultsByCompetitionIdAsync(string competitionId)
         {
-            return await _tableStorageService.QueryEntitiesAsync<FinalResultEntity>(
-                TableName, 
-                $"PartitionKey eq '{competitionId}'"
-            );
+            try
+            {
+                var results = await _tableStorageService.QueryEntitiesAsync<FinalResultEntity>(
+                    TableName, 
+                    $"PartitionKey eq '{competitionId}'"
+                );
+                Console.WriteLine($"FinalResultService: Encontrados {results.Count()} resultados finais para competição {competitionId}");
+                return results;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao buscar resultados finais: {ex.Message}");
+                return new List<FinalResultEntity>();
+            }
         }
 
         public async Task<IEnumerable<FinalResultEntity>> GetFinalResultsByParticipantIdAsync(string participantId)
@@ -54,6 +64,7 @@ namespace CompetitionApp.Services
 
         public async Task<FinalResultEntity> SaveFinalResultAsync(FinalResultEntity finalResult)
         {
+            // Verificar se já existe
             var existingResult = await _tableStorageService.GetEntityAsync<FinalResultEntity>(
                 TableName, 
                 finalResult.PartitionKey, 
@@ -62,12 +73,26 @@ namespace CompetitionApp.Services
 
             if (existingResult == null)
             {
+                // Garantir que as datas estejam em UTC
+                finalResult.CreatedAt = DateTime.SpecifyKind(finalResult.CreatedAt, DateTimeKind.Utc);
+                finalResult.UpdatedAt = DateTime.SpecifyKind(finalResult.UpdatedAt, DateTimeKind.Utc);
+                
                 await _tableStorageService.AddEntityAsync(TableName, finalResult);
+                Console.WriteLine($"Resultado final adicionado para {finalResult.ParticipantName}");
             }
             else
             {
-                finalResult.UpdatedAt = DateTime.Now;
-                await _tableStorageService.UpdateEntityAsync(TableName, finalResult);
+                // Atualizar propriedades
+                existingResult.Round1Time = finalResult.Round1Time;
+                existingResult.Round2Time = finalResult.Round2Time;
+                existingResult.BestTime = finalResult.BestTime;
+                existingResult.BestRound = finalResult.BestRound;
+                existingResult.Position = finalResult.Position;
+                existingResult.UpdatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+                
+                await _tableStorageService.UpdateEntityAsync(TableName, existingResult);
+                Console.WriteLine($"Resultado final atualizado para {finalResult.ParticipantName}");
+                finalResult = existingResult;
             }
 
             return finalResult;
@@ -84,72 +109,107 @@ namespace CompetitionApp.Services
 
         public async Task<IEnumerable<FinalResultEntity>> CalculateAndSaveFinalResultsAsync(string competitionId, string competitionName)
         {
-            // Obter todos os resultados da competição
-            var results = await _resultService.GetResultsByCompetitionIdAsync(competitionId);
-            
-            // Agrupar por participante
-            var participantResults = results.GroupBy(r => r.ParticipantId);
-            
-            var finalResults = new List<FinalResultEntity>();
-            
-            foreach (var group in participantResults)
+            try
             {
-                var participantId = group.Key;
-                var participantName = group.First().ParticipantName;
+                Console.WriteLine($"Calculando resultados finais para competição: {competitionId}");
                 
-                var round1Result = group.FirstOrDefault(r => r.RoundNumber == 1);
-                var round2Result = group.FirstOrDefault(r => r.RoundNumber == 2);
+                // Obter todos os resultados da competição
+                var results = await _resultService.GetResultsByCompetitionIdAsync(competitionId);
+                Console.WriteLine($"Encontrados {results.Count()} resultados de rodadas");
                 
-                if (round1Result == null && round2Result == null)
+                if (!results.Any())
                 {
-                    continue;
+                    Console.WriteLine("Nenhum resultado de rodada encontrado para calcular resultados finais");
+                    return new List<FinalResultEntity>();
                 }
                 
-                decimal round1Time = round1Result?.TotalTime ?? decimal.MaxValue;
-                decimal round2Time = round2Result?.TotalTime ?? decimal.MaxValue;
+                // Agrupar por participante
+                var participantResults = results.GroupBy(r => r.ParticipantId);
                 
-                decimal bestTime;
-                int bestRound;
+                var finalResults = new List<FinalResultEntity>();
                 
-                if (round1Time <= round2Time)
+                foreach (var group in participantResults)
                 {
-                    bestTime = round1Time;
-                    bestRound = 1;
+                    var participantId = group.Key;
+                    var participantName = group.First().ParticipantName;
+                    
+                    var round1Result = group.FirstOrDefault(r => r.RoundNumber == 1);
+                    var round2Result = group.FirstOrDefault(r => r.RoundNumber == 2);
+                    
+                    Console.WriteLine($"Processando participante: {participantName}");
+                    Console.WriteLine($"  Rodada 1: {(round1Result != null ? $"{round1Result.TotalTime:F2}s" : "N/A")}");
+                    Console.WriteLine($"  Rodada 2: {(round2Result != null ? $"{round2Result.TotalTime:F2}s" : "N/A")}");
+                    
+                    if (round1Result == null && round2Result == null)
+                    {
+                        continue;
+                    }
+                    
+                    // Considerar participantes eliminados
+                    decimal round1Time = (round1Result?.IsEliminated == true) ? decimal.MaxValue : (round1Result?.TotalTime ?? decimal.MaxValue);
+                    decimal round2Time = (round2Result?.IsEliminated == true) ? decimal.MaxValue : (round2Result?.TotalTime ?? decimal.MaxValue);
+                    
+                    decimal bestTime;
+                    int bestRound;
+                    
+                    if (round1Time == decimal.MaxValue && round2Time == decimal.MaxValue)
+                    {
+                        // Ambas as rodadas eliminadas
+                        bestTime = decimal.MaxValue;
+                        bestRound = 0;
+                    }
+                    else if (round1Time <= round2Time)
+                    {
+                        bestTime = round1Time;
+                        bestRound = 1;
+                    }
+                    else
+                    {
+                        bestTime = round2Time;
+                        bestRound = 2;
+                    }
+                    
+                    var finalResult = new FinalResultEntity
+                    {
+                        PartitionKey = competitionId,
+                        RowKey = participantId,
+                        ParticipantId = participantId,
+                        ParticipantName = participantName,
+                        CompetitionId = competitionId,
+                        CompetitionName = competitionName,
+                        Round1Time = round1Time == decimal.MaxValue ? 0 : round1Time,
+                        Round2Time = round2Time == decimal.MaxValue ? 0 : round2Time,
+                        BestTime = bestTime == decimal.MaxValue ? 0 : bestTime,
+                        BestRound = bestRound,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    
+                    finalResults.Add(finalResult);
                 }
-                else
+                
+                // Calcular posições - participantes não eliminados primeiro, depois por melhor tempo
+                var sortedResults = finalResults
+                    .OrderBy(r => r.BestTime == 0) // Eliminados por último
+                    .ThenBy(r => r.BestTime)
+                    .ToList();
+                
+                int position = 1;
+                foreach (var result in sortedResults)
                 {
-                    bestTime = round2Time;
-                    bestRound = 2;
+                    result.Position = position++;
+                    await SaveFinalResultAsync(result);
                 }
                 
-                var finalResult = new FinalResultEntity
-                {
-                    PartitionKey = competitionId,
-                    RowKey = participantId,
-                    ParticipantId = participantId,
-                    ParticipantName = participantName,
-                    CompetitionId = competitionId,
-                    CompetitionName = competitionName,
-                    Round1Time = round1Time == decimal.MaxValue ? 0 : round1Time,
-                    Round2Time = round2Time == decimal.MaxValue ? 0 : round2Time,
-                    BestTime = bestTime == decimal.MaxValue ? 0 : bestTime,
-                    BestRound = bestRound,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
-                
-                finalResults.Add(finalResult);
+                Console.WriteLine($"Salvos {finalResults.Count} resultados finais");
+                return finalResults;
             }
-            
-            // Calcular posições
-            int position = 1;
-            foreach (var result in finalResults.OrderBy(r => r.BestTime))
+            catch (Exception ex)
             {
-                result.Position = position++;
-                await SaveFinalResultAsync(result);
+                Console.WriteLine($"Erro ao calcular e salvar resultados finais: {ex.Message}");
+                throw;
             }
-            
-            return finalResults;
         }
     }
 }
+
