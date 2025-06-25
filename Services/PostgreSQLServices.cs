@@ -4,34 +4,65 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CompetitionApp.Services
 {
-    public interface ICompetitionService
+    // Interfaces específicas para PostgreSQL
+    public interface IPostgreSQLCompetitionService
     {
-        Task<Competition> CreateCompetitionAsync(string name, string description, DateTime competitionDate);
-        Task<Competition?> GetCompetitionByIdAsync(int id);
+        Task<Competition> CreateCompetitionAsync(string name, string? description, DateTime competitionDate);
+        Task<Competition?> GetCompetitionAsync(int id);
         Task<IEnumerable<Competition>> GetAllCompetitionsAsync();
-        Task<IEnumerable<Competition>> GetCompetitionsByDateRangeAsync(DateTime? startDate, DateTime? endDate);
-        Task<IEnumerable<Competition>> SearchCompetitionsByNameAsync(string name);
         Task<Competition> UpdateCompetitionAsync(Competition competition);
         Task DeleteCompetitionAsync(int id);
     }
 
-    public class CompetitionService : ICompetitionService
+    public interface IPostgreSQLParticipantService
+    {
+        Task<ParticipantModel> CreateParticipantAsync(string name, string? email = null);
+        Task<ParticipantModel?> GetParticipantAsync(int id);
+        Task<ParticipantModel?> GetParticipantByNameAsync(string name);
+        Task<IEnumerable<ParticipantModel>> GetAllParticipantsAsync();
+        Task<ParticipantModel> UpdateParticipantAsync(ParticipantModel participant);
+        Task DeleteParticipantAsync(int id);
+        Task<CompetitionParticipant> RegisterParticipantInCompetitionAsync(int competitionId, int participantId);
+    }
+
+    public interface IPostgreSQLResultService
+    {
+        Task<Result> SaveResultAsync(int competitionId, int participantId, int roundNumber, decimal timeInSeconds, 
+            int bravoCount, int charlieCount, int missCount, int faultCount, int vitimaCount, int plateCount, 
+            decimal totalTime, bool isEliminated);
+        Task<Result?> GetResultAsync(int competitionId, int participantId, int roundNumber);
+        Task<IEnumerable<Result>> GetResultsByCompetitionIdAsync(int competitionId);
+        Task<IEnumerable<Result>> GetResultsByParticipantIdAsync(int participantId);
+        Task<IEnumerable<Result>> GetResultsByCompetitionAndRoundAsync(int competitionId, int roundNumber);
+        Task DeleteResultAsync(int id);
+        Task DeleteResultsByCompetitionAsync(int competitionId);
+    }
+
+    public interface IPostgreSQLFinalResultService
+    {
+        Task<IEnumerable<FinalResultModel>> CalculateAndSaveFinalResultsAsync(int competitionId);
+        Task<FinalResultModel?> GetFinalResultAsync(int competitionId, int participantId);
+        Task<IEnumerable<FinalResultModel>> GetFinalResultsByCompetitionIdAsync(int competitionId);
+        Task DeleteFinalResultAsync(int id);
+        Task DeleteFinalResultsByCompetitionAsync(int competitionId);
+    }
+
+    // Implementações dos serviços
+    public class PostgreSQLCompetitionService : IPostgreSQLCompetitionService
     {
         private readonly CompetitionDbContext _context;
-        private readonly ILogger<CompetitionService> _logger;
+        private readonly ILogger<PostgreSQLCompetitionService> _logger;
 
-        public CompetitionService(CompetitionDbContext context, ILogger<CompetitionService> logger)
+        public PostgreSQLCompetitionService(CompetitionDbContext context, ILogger<PostgreSQLCompetitionService> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        public async Task<Competition> CreateCompetitionAsync(string name, string description, DateTime competitionDate)
+        public async Task<Competition> CreateCompetitionAsync(string name, string? description, DateTime competitionDate)
         {
             try
             {
-                _logger.LogInformation("Criando nova competição: {Name}", name);
-
                 var competition = new Competition
                 {
                     Name = name,
@@ -44,7 +75,7 @@ namespace CompetitionApp.Services
                 _context.Competitions.Add(competition);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Competição criada com sucesso. ID: {Id}", competition.Id);
+                _logger.LogInformation("Competição criada: {Name} (ID: {Id})", name, competition.Id);
                 return competition;
             }
             catch (Exception ex)
@@ -54,35 +85,18 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<Competition?> GetCompetitionByIdAsync(int id)
+        public async Task<Competition?> GetCompetitionAsync(int id)
         {
             try
             {
-                _logger.LogInformation("Buscando competição por ID: {Id}", id);
-
-                var competition = await _context.Competitions
-                    .Include(c => c.Participants)
-                        .ThenInclude(cp => cp.Participant)
-                    .Include(c => c.Results)
-                        .ThenInclude(r => r.Participant)
-                    .Include(c => c.FinalResults)
-                        .ThenInclude(fr => fr.Participant)
+                return await _context.Competitions
+                    .Include(c => c.CompetitionParticipants)
+                    .ThenInclude(cp => cp.Participant)
                     .FirstOrDefaultAsync(c => c.Id == id);
-
-                if (competition != null)
-                {
-                    _logger.LogInformation("Competição encontrada: {Name}", competition.Name);
-                }
-                else
-                {
-                    _logger.LogWarning("Competição não encontrada para ID: {Id}", id);
-                }
-
-                return competition;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar competição por ID: {Id}", id);
+                _logger.LogError(ex, "Erro ao buscar competição ID: {Id}", id);
                 throw;
             }
         }
@@ -91,16 +105,10 @@ namespace CompetitionApp.Services
         {
             try
             {
-                _logger.LogInformation("Buscando todas as competições");
-
-                var competitions = await _context.Competitions
-                    .Include(c => c.Participants)
-                        .ThenInclude(cp => cp.Participant)
+                return await _context.Competitions
+                    .Include(c => c.CompetitionParticipants)
                     .OrderByDescending(c => c.CreatedAt)
                     .ToListAsync();
-
-                _logger.LogInformation("Encontradas {Count} competições", competitions.Count);
-                return competitions;
             }
             catch (Exception ex)
             {
@@ -109,74 +117,15 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<IEnumerable<Competition>> GetCompetitionsByDateRangeAsync(DateTime? startDate, DateTime? endDate)
-        {
-            try
-            {
-                _logger.LogInformation("Buscando competições por intervalo de datas: {StartDate} - {EndDate}", startDate, endDate);
-
-                var query = _context.Competitions.AsQueryable();
-
-                if (startDate.HasValue)
-                {
-                    query = query.Where(c => c.CreatedAt >= startDate.Value);
-                }
-
-                if (endDate.HasValue)
-                {
-                    query = query.Where(c => c.CreatedAt <= endDate.Value.AddDays(1));
-                }
-
-                var competitions = await query
-                    .Include(c => c.Participants)
-                        .ThenInclude(cp => cp.Participant)
-                    .OrderByDescending(c => c.CreatedAt)
-                    .ToListAsync();
-
-                _logger.LogInformation("Encontradas {Count} competições no intervalo de datas", competitions.Count);
-                return competitions;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar competições por intervalo de datas");
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Competition>> SearchCompetitionsByNameAsync(string name)
-        {
-            try
-            {
-                _logger.LogInformation("Buscando competições por nome: {Name}", name);
-
-                var competitions = await _context.Competitions
-                    .Where(c => c.Name.ToLower().Contains(name.ToLower()))
-                    .Include(c => c.Participants)
-                        .ThenInclude(cp => cp.Participant)
-                    .OrderByDescending(c => c.CreatedAt)
-                    .ToListAsync();
-
-                _logger.LogInformation("Encontradas {Count} competições com nome contendo '{Name}'", competitions.Count, name);
-                return competitions;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar competições por nome: {Name}", name);
-                throw;
-            }
-        }
-
         public async Task<Competition> UpdateCompetitionAsync(Competition competition)
         {
             try
             {
-                _logger.LogInformation("Atualizando competição ID: {Id}", competition.Id);
-
                 competition.UpdatedAt = DateTime.UtcNow;
                 _context.Competitions.Update(competition);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Competição atualizada com sucesso. ID: {Id}", competition.Id);
+                _logger.LogInformation("Competição atualizada: {Name} (ID: {Id})", competition.Name, competition.Id);
                 return competition;
             }
             catch (Exception ex)
@@ -190,19 +139,16 @@ namespace CompetitionApp.Services
         {
             try
             {
-                _logger.LogInformation("Excluindo competição ID: {Id}", id);
-
                 var competition = await _context.Competitions.FindAsync(id);
                 if (competition == null)
                 {
-                    _logger.LogWarning("Competição não encontrada para exclusão. ID: {Id}", id);
                     throw new ArgumentException($"Competição com ID {id} não encontrada");
                 }
 
                 _context.Competitions.Remove(competition);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Competição excluída com sucesso. ID: {Id}", id);
+                _logger.LogInformation("Competição excluída: {Name} (ID: {Id})", competition.Name, id);
             }
             catch (Exception ex)
             {
@@ -212,44 +158,29 @@ namespace CompetitionApp.Services
         }
     }
 
-    public interface IParticipantService
-    {
-        Task<Participant> CreateParticipantAsync(string name, string email = "");
-        Task<Participant?> GetParticipantByIdAsync(int id);
-        Task<Participant?> GetParticipantByNameAsync(string name);
-        Task<IEnumerable<Participant>> GetAllParticipantsAsync();
-        Task<Participant> UpdateParticipantAsync(Participant participant);
-        Task DeleteParticipantAsync(int id);
-        Task<CompetitionParticipant> RegisterParticipantInCompetitionAsync(int competitionId, int participantId);
-        Task<IEnumerable<Participant>> GetParticipantsByCompetitionAsync(int competitionId);
-    }
-
-    public class ParticipantService : IParticipantService
+    public class PostgreSQLParticipantService : IPostgreSQLParticipantService
     {
         private readonly CompetitionDbContext _context;
-        private readonly ILogger<ParticipantService> _logger;
+        private readonly ILogger<PostgreSQLParticipantService> _logger;
 
-        public ParticipantService(CompetitionDbContext context, ILogger<ParticipantService> logger)
+        public PostgreSQLParticipantService(CompetitionDbContext context, ILogger<PostgreSQLParticipantService> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        public async Task<Participant> CreateParticipantAsync(string name, string email = "")
+        public async Task<ParticipantModel> CreateParticipantAsync(string name, string? email = null)
         {
             try
             {
-                _logger.LogInformation("Criando novo participante: {Name}", name);
-
                 // Verificar se já existe
-                var existingParticipant = await GetParticipantByNameAsync(name);
-                if (existingParticipant != null)
+                var existing = await GetParticipantByNameAsync(name);
+                if (existing != null)
                 {
-                    _logger.LogInformation("Participante já existe: {Name}", name);
-                    return existingParticipant;
+                    return existing;
                 }
 
-                var participant = new Participant
+                var participant = new ParticipantModel
                 {
                     Name = name,
                     Email = email,
@@ -260,7 +191,7 @@ namespace CompetitionApp.Services
                 _context.Participants.Add(participant);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Participante criado com sucesso. ID: {Id}", participant.Id);
+                _logger.LogInformation("Participante criado: {Name} (ID: {Id})", name, participant.Id);
                 return participant;
             }
             catch (Exception ex)
@@ -270,7 +201,7 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<Participant?> GetParticipantByIdAsync(int id)
+        public async Task<ParticipantModel?> GetParticipantAsync(int id)
         {
             try
             {
@@ -278,12 +209,12 @@ namespace CompetitionApp.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar participante por ID: {Id}", id);
+                _logger.LogError(ex, "Erro ao buscar participante ID: {Id}", id);
                 throw;
             }
         }
 
-        public async Task<Participant?> GetParticipantByNameAsync(string name)
+        public async Task<ParticipantModel?> GetParticipantByNameAsync(string name)
         {
             try
             {
@@ -297,7 +228,7 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<IEnumerable<Participant>> GetAllParticipantsAsync()
+        public async Task<IEnumerable<ParticipantModel>> GetAllParticipantsAsync()
         {
             try
             {
@@ -312,13 +243,15 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<Participant> UpdateParticipantAsync(Participant participant)
+        public async Task<ParticipantModel> UpdateParticipantAsync(ParticipantModel participant)
         {
             try
             {
                 participant.UpdatedAt = DateTime.UtcNow;
                 _context.Participants.Update(participant);
                 await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Participante atualizado: {Name} (ID: {Id})", participant.Name, participant.Id);
                 return participant;
             }
             catch (Exception ex)
@@ -340,6 +273,8 @@ namespace CompetitionApp.Services
 
                 _context.Participants.Remove(participant);
                 await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Participante excluído: {Name} (ID: {Id})", participant.Name, id);
             }
             catch (Exception ex)
             {
@@ -371,28 +306,14 @@ namespace CompetitionApp.Services
                 _context.CompetitionParticipants.Add(registration);
                 await _context.SaveChangesAsync();
 
+                _logger.LogInformation("Participante {ParticipantId} registrado na competição {CompetitionId}", 
+                    participantId, competitionId);
                 return registration;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao registrar participante {ParticipantId} na competição {CompetitionId}", participantId, competitionId);
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Participant>> GetParticipantsByCompetitionAsync(int competitionId)
-        {
-            try
-            {
-                return await _context.CompetitionParticipants
-                    .Where(cp => cp.CompetitionId == competitionId)
-                    .Include(cp => cp.Participant)
-                    .Select(cp => cp.Participant)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar participantes da competição {CompetitionId}", competitionId);
+                _logger.LogError(ex, "Erro ao registrar participante {ParticipantId} na competição {CompetitionId}", 
+                    participantId, competitionId);
                 throw;
             }
         }

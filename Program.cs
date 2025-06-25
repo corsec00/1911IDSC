@@ -32,11 +32,9 @@ builder.Services.AddDbContext<CompetitionDbContext>(options =>
     }
 });
 
-// Registrar serviços
-builder.Services.AddScoped<ICompetitionService, CompetitionService>();
-builder.Services.AddScoped<IParticipantService, ParticipantService>();
-builder.Services.AddScoped<IResultService, ResultService>();
-builder.Services.AddScoped<IFinalResultService, FinalResultService>();
+// Registrar apenas os serviços PostgreSQL (sem conflitos)
+builder.Services.AddScoped<IPostgreSQLCompetitionService, PostgreSQLCompetitionService>();
+builder.Services.AddScoped<IPostgreSQLParticipantService, PostgreSQLParticipantService>();
 
 // Adicionar Razor Pages
 builder.Services.AddRazorPages();

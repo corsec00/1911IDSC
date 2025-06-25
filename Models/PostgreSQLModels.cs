@@ -1,8 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace CompetitionApp.Models
 {
+    // Modelos para PostgreSQL - sem conflitos com modelos existentes
+    
     [Table("competitions")]
     public class Competition
     {
@@ -17,7 +20,7 @@ namespace CompetitionApp.Models
 
         [MaxLength(1000)]
         [Column("description")]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [Column("competition_date")]
         public DateTime CompetitionDate { get; set; }
@@ -28,14 +31,14 @@ namespace CompetitionApp.Models
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
-        public virtual ICollection<CompetitionParticipant> Participants { get; set; } = new List<CompetitionParticipant>();
+        // Relacionamentos
+        public virtual ICollection<CompetitionParticipant> CompetitionParticipants { get; set; } = new List<CompetitionParticipant>();
         public virtual ICollection<Result> Results { get; set; } = new List<Result>();
         public virtual ICollection<FinalResult> FinalResults { get; set; } = new List<FinalResult>();
     }
 
     [Table("participants")]
-    public class Participant
+    public class ParticipantModel
     {
         [Key]
         [Column("id")]
@@ -48,7 +51,7 @@ namespace CompetitionApp.Models
 
         [MaxLength(200)]
         [Column("email")]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -56,8 +59,8 @@ namespace CompetitionApp.Models
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
-        public virtual ICollection<CompetitionParticipant> Competitions { get; set; } = new List<CompetitionParticipant>();
+        // Relacionamentos
+        public virtual ICollection<CompetitionParticipant> CompetitionParticipants { get; set; } = new List<CompetitionParticipant>();
         public virtual ICollection<Result> Results { get; set; } = new List<Result>();
         public virtual ICollection<FinalResult> FinalResults { get; set; } = new List<FinalResult>();
     }
@@ -78,12 +81,12 @@ namespace CompetitionApp.Models
         [Column("registered_at")]
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
+        // Relacionamentos
         [ForeignKey("CompetitionId")]
         public virtual Competition Competition { get; set; } = null!;
 
         [ForeignKey("ParticipantId")]
-        public virtual Participant Participant { get; set; } = null!;
+        public virtual ParticipantModel Participant { get; set; } = null!;
     }
 
     [Table("results")]
@@ -102,8 +105,7 @@ namespace CompetitionApp.Models
         [Column("round_number")]
         public int RoundNumber { get; set; }
 
-        [Column("time_in_seconds")]
-        [Precision(10, 3)]
+        [Column("time_in_seconds", TypeName = "decimal(10,3)")]
         public decimal TimeInSeconds { get; set; }
 
         [Column("bravo_count")]
@@ -124,8 +126,7 @@ namespace CompetitionApp.Models
         [Column("plate_count")]
         public int PlateCount { get; set; }
 
-        [Column("total_time")]
-        [Precision(10, 3)]
+        [Column("total_time", TypeName = "decimal(10,3)")]
         public decimal TotalTime { get; set; }
 
         [Column("is_eliminated")]
@@ -137,16 +138,16 @@ namespace CompetitionApp.Models
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
+        // Relacionamentos
         [ForeignKey("CompetitionId")]
         public virtual Competition Competition { get; set; } = null!;
 
         [ForeignKey("ParticipantId")]
-        public virtual Participant Participant { get; set; } = null!;
+        public virtual ParticipantModel Participant { get; set; } = null!;
     }
 
     [Table("final_results")]
-    public class FinalResult
+    public class FinalResultModel
     {
         [Key]
         [Column("id")]
@@ -161,16 +162,13 @@ namespace CompetitionApp.Models
         [Column("position")]
         public int Position { get; set; }
 
-        [Column("round1_time")]
-        [Precision(10, 3)]
+        [Column("round1_time", TypeName = "decimal(10,3)")]
         public decimal Round1Time { get; set; }
 
-        [Column("round2_time")]
-        [Precision(10, 3)]
+        [Column("round2_time", TypeName = "decimal(10,3)")]
         public decimal Round2Time { get; set; }
 
-        [Column("best_time")]
-        [Precision(10, 3)]
+        [Column("best_time", TypeName = "decimal(10,3)")]
         public decimal BestTime { get; set; }
 
         [Column("best_round")]
@@ -182,12 +180,12 @@ namespace CompetitionApp.Models
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
+        // Relacionamentos
         [ForeignKey("CompetitionId")]
         public virtual Competition Competition { get; set; } = null!;
 
         [ForeignKey("ParticipantId")]
-        public virtual Participant Participant { get; set; } = null!;
+        public virtual ParticipantModel Participant { get; set; } = null!;
     }
 }
 

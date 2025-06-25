@@ -12,17 +12,35 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\Entities\**" />
+    <Compile Remove="Services\TableStorageService.cs" />
+    <Compile Remove="Services\CompetitionService.cs" />
+    <Compile Remove="Services\ParticipantService.cs" />
+    <Compile Remove="Services\ResultService.cs" />
+    <Compile Remove="Services\FinalResultService.cs" />
+    <Compile Remove="Services\FinalResultService_Fixed.cs" />
+    <Compile Remove="Services\PostgreSQLServices.cs" />
+    <Compile Remove="Services\PostgreSQLResultServices.cs" />
+    <Compile Remove="Services\PostgreSQLResultServices_Fixed.cs" />
+    <Compile Remove="Models\PostgreSQLModels.cs" />
+    <Compile Remove="Pages\History\CompetitionDetails_Fixed.cshtml.cs" />
+    <Compile Remove="Pages\Diagnostic.cshtml.cs" />
+    <Compile Remove="Pages\TableStorageService.cs" />
+    <Content Remove="Models\Entities\**" />
+    <EmbeddedResource Remove="Models\Entities\**" />
+    <None Remove="Models\Entities\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\PostgreSQLModels_Clean.cs" />
+    <Compile Include="Data\CompetitionDbContext_Clean.cs" />
+    <Compile Include="Services\PostgreSQLServices_Clean.cs" />
   </ItemGroup>
 
 </Project>

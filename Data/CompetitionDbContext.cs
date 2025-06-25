@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using CompetitionApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CompetitionApp.Data
 {
@@ -9,159 +9,107 @@ namespace CompetitionApp.Data
         {
         }
 
+        // DbSets usando os modelos sem conflito
         public DbSet<Competition> Competitions { get; set; }
-        public DbSet<Participant> Participants { get; set; }
+        public DbSet<ParticipantModel> Participants { get; set; }
         public DbSet<CompetitionParticipant> CompetitionParticipants { get; set; }
         public DbSet<Result> Results { get; set; }
-        public DbSet<FinalResult> FinalResults { get; set; }
+        public DbSet<FinalResultModel> FinalResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configurações específicas para PostgreSQL
-            modelBuilder.HasDefaultSchema("public");
-
-            // Configurar índices únicos
-            modelBuilder.Entity<CompetitionParticipant>()
-                .HasIndex(cp => new { cp.CompetitionId, cp.ParticipantId })
-                .IsUnique()
-                .HasDatabaseName("ix_competition_participants_unique");
-
-            modelBuilder.Entity<Result>()
-                .HasIndex(r => new { r.CompetitionId, r.ParticipantId, r.RoundNumber })
-                .IsUnique()
-                .HasDatabaseName("ix_results_unique");
-
-            modelBuilder.Entity<FinalResult>()
-                .HasIndex(fr => new { fr.CompetitionId, fr.ParticipantId })
-                .IsUnique()
-                .HasDatabaseName("ix_final_results_unique");
-
-            // Configurar índices para performance
-            modelBuilder.Entity<Competition>()
-                .HasIndex(c => c.CreatedAt)
-                .HasDatabaseName("ix_competitions_created_at");
-
-            modelBuilder.Entity<Result>()
-                .HasIndex(r => r.CompetitionId)
-                .HasDatabaseName("ix_results_competition_id");
-
-            modelBuilder.Entity<FinalResult>()
-                .HasIndex(fr => fr.CompetitionId)
-                .HasDatabaseName("ix_final_results_competition_id");
-
-            // Configurar relacionamentos
-            modelBuilder.Entity<CompetitionParticipant>()
-                .HasOne(cp => cp.Competition)
-                .WithMany(c => c.Participants)
-                .HasForeignKey(cp => cp.CompetitionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<CompetitionParticipant>()
-                .HasOne(cp => cp.Participant)
-                .WithMany(p => p.Competitions)
-                .HasForeignKey(cp => cp.ParticipantId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Result>()
-                .HasOne(r => r.Competition)
-                .WithMany(c => c.Results)
-                .HasForeignKey(r => r.CompetitionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Result>()
-                .HasOne(r => r.Participant)
-                .WithMany(p => p.Results)
-                .HasForeignKey(r => r.ParticipantId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<FinalResult>()
-                .HasOne(fr => fr.Competition)
-                .WithMany(c => c.FinalResults)
-                .HasForeignKey(fr => fr.CompetitionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<FinalResult>()
-                .HasOne(fr => fr.Participant)
-                .WithMany(p => p.FinalResults)
-                .HasForeignKey(fr => fr.ParticipantId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configurar valores padrão
-            modelBuilder.Entity<Competition>()
-                .Property(c => c.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<Competition>()
-                .Property(c => c.UpdatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<Participant>()
-                .Property(p => p.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<Participant>()
-                .Property(p => p.UpdatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<CompetitionParticipant>()
-                .Property(cp => cp.RegisteredAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<Result>()
-                .Property(r => r.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<Result>()
-                .Property(r => r.UpdatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<FinalResult>()
-                .Property(fr => fr.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<FinalResult>()
-                .Property(fr => fr.UpdatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-        }
-
-        public override int SaveChanges()
-        {
-            UpdateTimestamps();
-            return base.SaveChanges();
-        }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            UpdateTimestamps();
-            return await base.SaveChangesAsync(cancellationToken);
-        }
-
-        private void UpdateTimestamps()
-        {
-            var entries = ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Modified);
-
-            foreach (var entry in entries)
+            // Configurar Competition
+            modelBuilder.Entity<Competition>(entity =>
             {
-                if (entry.Entity is Competition competition)
-                {
-                    competition.UpdatedAt = DateTime.UtcNow;
-                }
-                else if (entry.Entity is Participant participant)
-                {
-                    participant.UpdatedAt = DateTime.UtcNow;
-                }
-                else if (entry.Entity is Result result)
-                {
-                    result.UpdatedAt = DateTime.UtcNow;
-                }
-                else if (entry.Entity is FinalResult finalResult)
-                {
-                    finalResult.UpdatedAt = DateTime.UtcNow;
-                }
-            }
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Description).HasMaxLength(1000);
+                entity.Property(e => e.CompetitionDate).IsRequired();
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasIndex(e => e.CreatedAt);
+            });
+
+            // Configurar ParticipantModel
+            modelBuilder.Entity<ParticipantModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Email).HasMaxLength(200);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // Configurar CompetitionParticipant
+            modelBuilder.Entity<CompetitionParticipant>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.RegisteredAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(e => e.Competition)
+                    .WithMany(c => c.CompetitionParticipants)
+                    .HasForeignKey(e => e.CompetitionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Participant)
+                    .WithMany(p => p.CompetitionParticipants)
+                    .HasForeignKey(e => e.ParticipantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => new { e.CompetitionId, e.ParticipantId }).IsUnique();
+            });
+
+            // Configurar Result
+            modelBuilder.Entity<Result>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.TimeInSeconds).HasColumnType("decimal(10,3)");
+                entity.Property(e => e.TotalTime).HasColumnType("decimal(10,3)");
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(e => e.Competition)
+                    .WithMany(c => c.Results)
+                    .HasForeignKey(e => e.CompetitionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Participant)
+                    .WithMany(p => p.Results)
+                    .HasForeignKey(e => e.ParticipantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => new { e.CompetitionId, e.ParticipantId, e.RoundNumber }).IsUnique();
+                entity.HasIndex(e => e.CompetitionId);
+            });
+
+            // Configurar FinalResultModel
+            modelBuilder.Entity<FinalResultModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Round1Time).HasColumnType("decimal(10,3)");
+                entity.Property(e => e.Round2Time).HasColumnType("decimal(10,3)");
+                entity.Property(e => e.BestTime).HasColumnType("decimal(10,3)");
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(e => e.Competition)
+                    .WithMany(c => c.FinalResults)
+                    .HasForeignKey(e => e.CompetitionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Participant)
+                    .WithMany(p => p.FinalResults)
+                    .HasForeignKey(e => e.ParticipantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => new { e.CompetitionId, e.ParticipantId }).IsUnique();
+                entity.HasIndex(e => e.CompetitionId);
+            });
         }
     }
 }
