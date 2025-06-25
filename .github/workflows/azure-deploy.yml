@@ -1,46 +1,96 @@
-name: Deploy to Azure Web App
+name: "[DEPRECATED] Azure Deploy - Table Storage"
+
+# 🚨 ESTE WORKFLOW FOI SUBSTITUÍDO POR azure-deploy-postgresql.yml
+# Desabilitado automaticamente para evitar conflitos
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+    inputs:
+      force_deprecated:
+        description: 'ATENÇÃO: Este workflow está DEPRECATED. Digite "FORCE_DEPRECATED" para executar'
+        required: true
+        default: 'NÃO_EXECUTAR'
+        type: choice
+        options:
+        - 'NÃO_EXECUTAR'
+        - 'FORCE_DEPRECATED'
+
+env:
+  DEPRECATED_DATE: '2024-01-01'
+  REPLACEMENT_WORKFLOW: 'azure-deploy-postgresql.yml'
 
 jobs:
-  build-and-deploy:
+  deprecated-warning:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
+    - name: 🚨 Workflow Deprecated Warning
+      run: |
+        echo "=============================================="
+        echo "🚨 ESTE WORKFLOW FOI SUBSTITUÍDO!"
+        echo "=============================================="
+        echo ""
+        echo "❌ Workflow atual: azure-deploy.yml (Table Storage)"
+        echo "✅ Novo workflow: azure-deploy-postgresql.yml (PostgreSQL)"
+        echo ""
+        echo "📅 Deprecated em: ${{ env.DEPRECATED_DATE }}"
+        echo "🔄 Status: DESABILITADO"
+        echo ""
+        echo "Para usar a aplicação atualizada:"
+        echo "1. Use o workflow: ${{ env.REPLACEMENT_WORKFLOW }}"
+        echo "2. Configure os secrets do PostgreSQL"
+        echo "3. Faça push para a branch main"
+        echo ""
+        echo "=============================================="
         
-    - name: List directory contents
-      run: ls -la
-      
-    - name: Find csproj files
-      run: find . -name "*.csproj"
-      
-    - name: Restore dependencies
-      run: dotnet restore ./CompetitionApp.csproj
-    # Resstaura as dependências do NuGET para as conexões com a Azure
+        if [ "${{ github.event.inputs.force_deprecated }}" != "FORCE_DEPRECATED" ]; then
+          echo "❌ Execução cancelada automaticamente."
+          echo "   Este workflow está desabilitado para evitar conflitos."
+          echo ""
+          echo "Para forçar execução (NÃO RECOMENDADO):"
+          echo "- Selecione 'FORCE_DEPRECATED' no input"
+          echo "- Execute manualmente via GitHub Actions UI"
+          exit 1
+        fi
+        
+        echo "⚠️ ATENÇÃO: Continuando com workflow DEPRECATED..."
+        echo "   Isso pode causar conflitos com o novo sistema PostgreSQL!"
+        sleep 5
 
-    - name: Build with dotnet
-      run: |
-        # Especifica o caminho completo para o arquivo .csproj
-        dotnet build ./CompetitionApp.csproj --configuration Release
-      
-    - name: dotnet publish
-      run: |
-        # Especifica o caminho completo para o arquivo .csproj
-        dotnet publish ./CompetitionApp.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+  # Jobs originais comentados para evitar execução acidental
+  # 
+  # NOTA: Para restaurar funcionalidade completa, 
+  # restaure do arquivo de backup criado automaticamente
+  #
+  # build:
+  #   runs-on: ubuntu-latest
+  #   needs: deprecated-warning
+  #   if: github.event.inputs.force_deprecated == 'FORCE_DEPRECATED'
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+  #   # ... resto dos steps originais
+  #
+  # deploy:
+  #   runs-on: ubuntu-latest  
+  #   needs: build
+  #   if: github.event.inputs.force_deprecated == 'FORCE_DEPRECATED'
+  #   steps:
+  #   - name: Deploy
+  #     run: echo "Deploy do workflow deprecated..."
+  #   # ... resto dos steps originais
 
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: '1911idsc'  # Será substituído pelo nome real do seu Web App
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ${{env.DOTNET_ROOT}}/myapp
+  final-warning:
+    runs-on: ubuntu-latest
+    needs: deprecated-warning
+    if: github.event.inputs.force_deprecated == 'FORCE_DEPRECATED'
+    steps:
+    - name: Final Warning
+      run: |
+        echo "🚨 WORKFLOW DEPRECATED EXECUTADO!"
+        echo ""
+        echo "Este workflow pode causar problemas:"
+        echo "- Conflitos com PostgreSQL"
+        echo "- Dados inconsistentes"
+        echo "- Falhas de deploy"
+        echo ""
+        echo "Recomendação: Migre para azure-deploy-postgresql.yml"

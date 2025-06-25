@@ -368,5 +368,74 @@ namespace CompetitionApp.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar resultado final - Competição: {CompetitionId}, Participante: {ParticipantId}", competitionId, participantId)
-(Content truncated due to size limit. Use line ranges to read in chunks)
+                _logger.LogError(ex, "Erro ao buscar resultado final - Competição: {CompetitionId}, Participante: {ParticipantId}", competitionId, participantId);
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<FinalResult>> GetFinalResultsByCompetitionIdAsync(int competitionId)
+        {
+            try
+            {
+                _logger.LogInformation("Buscando resultados finais para competição: {CompetitionId}", competitionId);
+
+                var finalResults = await _context.FinalResults
+                    .Where(fr => fr.CompetitionId == competitionId)
+                    .Include(fr => fr.Participant)
+                    .OrderBy(fr => fr.Position)
+                    .ToListAsync();
+
+                _logger.LogInformation("Encontrados {Count} resultados finais para competição {CompetitionId}", finalResults.Count, competitionId);
+                return finalResults;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar resultados finais por competição: {CompetitionId}", competitionId);
+                throw;
+            }
+        }
+
+        public async Task DeleteFinalResultAsync(int id)
+        {
+            try
+            {
+                var finalResult = await _context.FinalResults.FindAsync(id);
+                if (finalResult == null)
+                {
+                    throw new ArgumentException($"Resultado final com ID {id} não encontrado");
+                }
+
+                _context.FinalResults.Remove(finalResult);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Resultado final excluído com sucesso. ID: {Id}", id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir resultado final ID: {Id}", id);
+                throw;
+            }
+        }
+
+        public async Task DeleteFinalResultsByCompetitionAsync(int competitionId)
+        {
+            try
+            {
+                var finalResults = await _context.FinalResults
+                    .Where(fr => fr.CompetitionId == competitionId)
+                    .ToListAsync();
+
+                _context.FinalResults.RemoveRange(finalResults);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Excluídos {Count} resultados finais da competição {CompetitionId}", finalResults.Count, competitionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir resultados finais da competição: {CompetitionId}", competitionId);
+                throw;
+            }
+        }
+    }
+}
+
