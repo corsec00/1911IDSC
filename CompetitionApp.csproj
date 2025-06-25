@@ -42,12 +42,12 @@
   </ItemGroup>
 
   <!-- Incluir apenas arquivos necessários -->
-  
+    <!-- 
   <ItemGroup>
     <Compile Include="Models\PostgreSQLModels_Clean.cs" />
     <Compile Include="Data\CompetitionDbContext_Clean.cs" />
     <Compile Include="Services\PostgreSQLServices_Clean.cs" />
-  </ItemGroup>
+  </ItemGroup>-->
 
 </Project>
 
