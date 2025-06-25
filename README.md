@@ -1,23 +1,6 @@
-# [Aplicação de Gerenciamento de IDSC 1911](https://1911idsc-esbqg7huarehd2ds.centralus-01.azurewebsites.net)
-![Build Status](https://github.com/corsec00/1911IDSC/actions/workflows/azure-deploy.yml/badge.svg)
-![.NET](https://img.shields.io/badge/.NET-8.0-blue)
-![Último Release](https://img.shields.io/github/v/release/corsec00/1911IDSC)
-![Contributors](https://img.shields.io/github/contributors/corsec00/1911IDSC)
-![Issues](https://img.shields.io/github/issues/corsec00/1911IDSC)
-![Repo Size](https://img.shields.io/github/repo-size/corsec00/1911IDSC)
+# Aplicação de Gerenciamento de Competição
 
-## Head
-Autor: Leonardo Santos Silva<br />
-Data Release: 14/06/2025<br />
-Status: Produção, V1.0.0<br />
-Testes: 
-- Windows: Microsoft Edge e Google Chrome
-- Android: Google Chrome
-
-## Descrição
 Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competições com até 30 participantes, registrando tempos e penalidades em duas rodadas e gerando uma classificação final baseada no melhor tempo.
-Link para a Aplicação: https://1911idsc-esbqg7huarehd2ds.centralus-01.azurewebsites.net
-![Exemplo](img/paginaExemplo.jpg)
 
 ## Funcionalidades
 
@@ -25,17 +8,17 @@ Link para a Aplicação: https://1911idsc-esbqg7huarehd2ds.centralus-01.azureweb
 - Configuração personalizada de penalidades
 - Registro de tempos e penalidades em duas rodadas
 - Classificação automática baseada no melhor tempo entre as rodadas
-- Exportação dos resultados
+- Exportação dos resultados para PDF
 
 ## Configuração de Penalidades
 
 A aplicação permite configurar os valores (em segundos) para cada tipo de penalidade:
 
-- **Bravo**: Penalidade leve (padrão: 2s)
+- **Bravo**: Penalidade leve (padrão: 3s)
 - **Charlie**: Penalidade média (padrão: 5s)
 - **Miss**: Penalidade por erro de alvo (padrão: 10s)
 - **Vítima**: Penalidade por atingir vítima (padrão: 10s)
-- **Plate**: Penalidade por erro em plate (padrão: 10s)
+- **Plate**: Penalidade por erro em plate (padrão: 5s)
 - **Fault**: Penalidade por falta (padrão: 10s)
 - **Desclassificado**: Valor para indicar desclassificação (padrão: 999s)
 
@@ -65,7 +48,7 @@ A classificação final é calculada automaticamente com base no melhor tempo en
 
 ### 6. Exportar Resultados
 
-Exporte os resultados para impressão ou arquivamento.
+Exporte os resultados para PDF para impressão ou arquivamento.
 
 ## Requisitos Técnicos
 
@@ -74,10 +57,8 @@ Exporte os resultados para impressão ou arquivamento.
 
 ## Implantação no Azure
 
-Para implantar esta aplicação no Azure Web App (Caso precise implementar no seu ambiente, entre em contato):
+Para implantar esta aplicação no Azure Web App, siga as instruções detalhadas no arquivo `AzureDeploymentInstructions.md`.
 
-![Infra Azure](img/InfraAzure.jpg)
+## Execução Local
 
-## Configurações de Segurança
-
-Consulte [aqui](SecureConfigurationGuide.md)
+Para executar a aplicação localmente, siga as instruções no arquivo `LocalRunInstructions.md`.

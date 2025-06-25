@@ -6,6 +6,20 @@
 
 <h1>Detalhes da Competição</h1>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 @if (Model.Competition == null)
 {
     <div class="alert alert-warning">
@@ -57,6 +71,7 @@ else
                                 <th>Plate</th>
                                 <th>Tempo Base</th>
                                 <th>Tempo Total</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,17 +84,18 @@ else
                                 for (int i = 0; i < sortedRound1Results.Count; i++)
                                 {
                                     var result = sortedRound1Results[i];
-                                    <tr>
-                                        <td>@(i + 1)</td>
-                                        <td>@result.ParticipantName</td>
+                                    <tr class="@(result.IsEliminated ? "table-danger" : "")">
+                                        <td>@(result.IsEliminated ? "DQ" : (i + 1).ToString())</td>
+                                        <td><strong>@result.ParticipantName</strong></td>
                                         <td>@result.BravoCount</td>
                                         <td>@result.CharlieCount</td>
                                         <td>@result.MissCount</td>
                                         <td>@result.FaltaCount</td>
                                         <td>@result.VitimaCount</td>
                                         <td>@result.PlateCount</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TotalTime:F3}s")</td>
+                                        <td>@(result.IsEliminated ? "-" : $"{result.TimeInSeconds:F2}s")</td>
+                                        <td>@(result.IsEliminated ? "-" : $"{result.TotalTime:F2}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : "Classificado")</td>
                                     </tr>
                                 }
                             }
@@ -116,6 +132,7 @@ else
                                 <th>Plate</th>
                                 <th>Tempo Base</th>
                                 <th>Tempo Total</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -128,17 +145,18 @@ else
                                 for (int i = 0; i < sortedRound2Results.Count; i++)
                                 {
                                     var result = sortedRound2Results[i];
-                                    <tr>
-                                        <td>@(i + 1)</td>
-                                        <td>@result.ParticipantName</td>
+                                    <tr class="@(result.IsEliminated ? "table-danger" : "")">
+                                        <td>@(result.IsEliminated ? "DQ" : (i + 1).ToString())</td>
+                                        <td><strong>@result.ParticipantName</strong></td>
                                         <td>@result.BravoCount</td>
                                         <td>@result.CharlieCount</td>
                                         <td>@result.MissCount</td>
                                         <td>@result.FaltaCount</td>
                                         <td>@result.VitimaCount</td>
                                         <td>@result.PlateCount</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TotalTime:F3}s")</td>
+                                        <td>@(result.IsEliminated ? "-" : $"{result.TimeInSeconds:F2}s")</td>
+                                        <td>@(result.IsEliminated ? "-" : $"{result.TotalTime:F2}s")</td>
+                                        <td>@(result.IsEliminated ? "Desclassificado" : "Classificado")</td>
                                     </tr>
                                 }
                             }
@@ -152,12 +170,19 @@ else
     <!-- Resultados Finais -->
     <div class="card mb-4">
         <div class="card-header">
-            <h3>Resultados Finais</h3>
+            <h3>Classificação Final</h3>
         </div>
         <div class="card-body">
             @if (!Model.FinalResults.Any())
             {
-                <p>Nenhum resultado final registrado.</p>
+                <div class="alert alert-info">
+                    <p><strong>Nenhum resultado final registrado.</strong></p>
+                    @if (Model.Round1Results.Any() || Model.Round2Results.Any())
+                    {
+                        <p>Existem resultados de rodadas, mas os resultados finais não foram calculados. Isso pode acontecer se a competição foi salva antes da implementação dos resultados finais automáticos.</p>
+                        <p>Os resultados finais serão calculados automaticamente na próxima visualização desta página.</p>
+                    }
+                </div>
             }
             else
             {
@@ -174,15 +199,20 @@ else
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var result in Model.FinalResults.OrderBy(r => r.Position))
+                            @{
+                                var sortedFinalResults = Model.FinalResults
+                                    .OrderBy(r => r.Position)
+                                    .ToList();
+                            }
+                            @foreach (var result in sortedFinalResults)
                             {
                                 <tr>
-                                    <td>@result.Position</td>
-                                    <td>@result.ParticipantName</td>
-                                    <td>@(result.Round1Time == 0 ? "N/A" : $"{result.Round1Time:F3}s")</td>
-                                    <td>@(result.Round2Time == 0 ? "N/A" : $"{result.Round2Time:F3}s")</td>
-                                    <td>@(result.BestTime == 0 ? "N/A" : $"{result.BestTime:F3}s")</td>
-                                    <td>@(result.BestRound == 1 ? "Rodada 1" : "Rodada 2")</td>
+                                    <td><strong>@result.Position°</strong></td>
+                                    <td><strong>@result.ParticipantName</strong></td>
+                                    <td>@(result.Round1Time <= 0 ? "N/A" : $"{result.Round1Time:F2}s")</td>
+                                    <td>@(result.Round2Time <= 0 ? "N/A" : $"{result.Round2Time:F2}s")</td>
+                                    <td><strong>@(result.BestTime <= 0 ? "DQ" : $"{result.BestTime:F2}s")</strong></td>
+                                    <td>@(result.BestRound == 1 ? "Rodada 1" : result.BestRound == 2 ? "Rodada 2" : "N/A")</td>
                                 </tr>
                             }
                         </tbody>
@@ -193,11 +223,16 @@ else
     </div>
 
     <div class="d-flex justify-content-between">
-        <a asp-page="./Competitions" class="btn btn-secondary">Voltar para Lista</a>
+        <a asp-page="./Competitions" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar para Lista
+        </a>
         
         <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Tem certeza que deseja excluir esta competição? Esta ação não pode ser desfeita.');">
             <input type="hidden" name="competitionId" value="@Model.Competition.RowKey" />
-            <button type="submit" class="btn btn-danger">Excluir Competição</button>
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Excluir Competição
+            </button>
         </form>
     </div>
 }
+

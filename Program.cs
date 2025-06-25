@@ -1,66 +1,55 @@
-using CompetitionApp.Managers;
+using CompetitionApp.Data;
 using CompetitionApp.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorPages()
-    .AddRazorPagesOptions(options =>
+// Configurar logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// Configurar Entity Framework com PostgreSQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<CompetitionDbContext>(options =>
+{
+    options.UseNpgsql(connectionString, npgsqlOptions =>
     {
-        // Configure Razor Pages options if needed
-    })
-    .AddMvcOptions(options =>
-    {
-        // Configure model binding to accept both comma and dot as decimal separators
-        options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
-            _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorCodesToAdd: null);
     });
-
-// Configure globalization options to support multiple cultures
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[] { "pt-BR", "en-US" };
-    options.SetDefaultCulture(supportedCultures[0])
-        .AddSupportedCultures(supportedCultures)
-        .AddSupportedUICultures(supportedCultures);
+    
+    // Habilitar logs sensíveis apenas em desenvolvimento
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.EnableDetailedErrors();
+    }
 });
 
-// Configure Razor View Engine to improve partial view discovery
-builder.Services.Configure<Microsoft.AspNetCore.Mvc.Razor.RazorViewEngineOptions>(options =>
-{
-    // Add additional view location formats to ensure partials are found
-    options.ViewLocationFormats.Add("/Pages/Shared/{0}" + RazorViewEngine.ViewExtension);
-    options.ViewLocationFormats.Add("/Pages/{1}/{0}" + RazorViewEngine.ViewExtension);
-    options.ViewLocationFormats.Add("/Views/Shared/{0}" + RazorViewEngine.ViewExtension);
-});
-
-// Configure Azure Key Vault
-// Código removido para eliminar a dependência do Azure Key Vault
-
-// Register Azure Table Storage services
-builder.Services.AddScoped<ITableStorageService, TableStorageService>();
+// Registrar serviços
 builder.Services.AddScoped<ICompetitionService, CompetitionService>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
 builder.Services.AddScoped<IResultService, ResultService>();
 builder.Services.AddScoped<IFinalResultService, FinalResultService>();
-builder.Services.AddScoped<ICompetitionManager, CompetitionManager>();
 
-builder.Services.AddSession(options =>
+// Adicionar Razor Pages
+builder.Services.AddRazorPages();
+
+// Configurar middleware para normalizar valores decimais
+builder.Services.Configure<RouteOptions>(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
+    options.LowercaseUrls = true;
 });
-
-builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configurar pipeline de requisições
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -70,43 +59,60 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// Adicione este middleware antes de app.UseRouting() para normalizar valores decimais
+// Middleware para normalizar valores decimais (vírgula para ponto)
 app.Use(async (context, next) =>
 {
-    // Normalizar valores decimais no formulário
-    if (context.Request.HasFormContentType && context.Request.Method == "POST")
+    if (context.Request.Method == "POST" && context.Request.HasFormContentType)
     {
         var form = await context.Request.ReadFormAsync();
         var normalizedForm = new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>();
         
-        foreach (var kvp in form)
+        foreach (var item in form)
         {
-            if (!string.IsNullOrEmpty(kvp.Value) && kvp.Value.Count > 0)
+            var value = item.Value.ToString();
+            // Normalizar valores decimais (trocar vírgula por ponto)
+            if (decimal.TryParse(value.Replace(',', '.'), System.Globalization.NumberStyles.Float, 
+                System.Globalization.CultureInfo.InvariantCulture, out _))
             {
-                // Substituir vírgula por ponto para garantir parsing correto de decimais
-                var normalizedValue = kvp.Value[0]?.Replace(',', '.') ?? kvp.Value[0];
-                normalizedForm[kvp.Key] = new Microsoft.Extensions.Primitives.StringValues(normalizedValue);
+                normalizedForm[item.Key] = value.Replace(',', '.');
             }
             else
             {
-                normalizedForm[kvp.Key] = kvp.Value;
+                normalizedForm[item.Key] = item.Value;
             }
         }
         
-        // Substituir o formulário original pelo normalizado
-        context.Request.Form = new Microsoft.AspNetCore.Http.FormCollection(normalizedForm, form.Files);
+        // Substituir o form original pelo normalizado
+        context.Request.Form = new FormCollection(normalizedForm);
     }
+    
     await next();
 });
 
 app.UseRouting();
-app.UseSession();
-
-// Add request localization middleware
-app.UseRequestLocalization();
-
 app.UseAuthorization();
 
 app.MapRazorPages();
 
+// Executar migrações automaticamente em desenvolvimento
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<CompetitionDbContext>();
+        try
+        {
+            await context.Database.MigrateAsync();
+            app.Logger.LogInformation("Migrações do banco de dados aplicadas com sucesso");
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogError(ex, "Erro ao aplicar migrações do banco de dados");
+        }
+    }
+}
+
+app.Logger.LogInformation("Aplicação iniciada com PostgreSQL");
+
 app.Run();
+
