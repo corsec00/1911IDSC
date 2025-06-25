@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <!-- Dependências apenas para PostgreSQL -->
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
@@ -19,35 +18,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <!-- Excluir arquivos conflitantes -->
-  <ItemGroup>
-    <Compile Remove="Models\Entities\**" />
-    <Compile Remove="Services\TableStorageService.cs" />
-    <Compile Remove="Services\CompetitionService.cs" />
-    <Compile Remove="Services\ParticipantService.cs" />
-    <Compile Remove="Services\ResultService.cs" />
-    <Compile Remove="Services\FinalResultService.cs" />
-    <Compile Remove="Services\FinalResultService_Fixed.cs" />
-    <Compile Remove="Services\PostgreSQLServices.cs" />
-    <Compile Remove="Services\PostgreSQLResultServices.cs" />
-    <Compile Remove="Services\PostgreSQLResultServices_Fixed.cs" />
-    <Compile Remove="Models\PostgreSQLModels.cs" />
-    <Compile Remove="Pages\History\CompetitionDetails_Fixed.cshtml.cs" />
-    <Compile Remove="Pages\Diagnostic.cshtml.cs" />
-    <Compile Remove="Pages\TableStorageService.cs" />
-    <Content Remove="Models\Entities\**" />
-    <EmbeddedResource Remove="Models\Entities\**" />
-    <None Remove="Models\Entities\**" />
-  </ItemGroup>
-
-  <!-- Incluir apenas arquivos necessários -->
-    <!-- 
-  <ItemGroup>
-    <Compile Include="Models\PostgreSQLModels_Clean.cs" />
-    <Compile Include="Data\CompetitionDbContext_Clean.cs" />
-    <Compile Include="Services\PostgreSQLServices_Clean.cs" />
-  </ItemGroup>-->
 
 </Project>
 

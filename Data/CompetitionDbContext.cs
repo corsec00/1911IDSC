@@ -9,12 +9,11 @@ namespace CompetitionApp.Data
         {
         }
 
-        // DbSets usando os modelos sem conflito
         public DbSet<Competition> Competitions { get; set; }
-        public DbSet<ParticipantModel> Participants { get; set; }
+        public DbSet<Participant> Participants { get; set; }
         public DbSet<CompetitionParticipant> CompetitionParticipants { get; set; }
         public DbSet<Result> Results { get; set; }
-        public DbSet<FinalResultModel> FinalResults { get; set; }
+        public DbSet<FinalResult> FinalResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,8 +32,8 @@ namespace CompetitionApp.Data
                 entity.HasIndex(e => e.CreatedAt);
             });
 
-            // Configurar ParticipantModel
-            modelBuilder.Entity<ParticipantModel>(entity =>
+            // Configurar Participant
+            modelBuilder.Entity<Participant>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
@@ -87,8 +86,8 @@ namespace CompetitionApp.Data
                 entity.HasIndex(e => e.CompetitionId);
             });
 
-            // Configurar FinalResultModel
-            modelBuilder.Entity<FinalResultModel>(entity =>
+            // Configurar FinalResult
+            modelBuilder.Entity<FinalResult>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Round1Time).HasColumnType("decimal(10,3)");

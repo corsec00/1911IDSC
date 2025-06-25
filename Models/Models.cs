@@ -1,11 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace CompetitionApp.Models
 {
-    // Modelos para PostgreSQL - sem conflitos com modelos existentes
-    
     [Table("competitions")]
     public class Competition
     {
@@ -38,7 +35,7 @@ namespace CompetitionApp.Models
     }
 
     [Table("participants")]
-    public class ParticipantModel
+    public class Participant
     {
         [Key]
         [Column("id")]
@@ -86,7 +83,7 @@ namespace CompetitionApp.Models
         public virtual Competition Competition { get; set; } = null!;
 
         [ForeignKey("ParticipantId")]
-        public virtual ParticipantModel Participant { get; set; } = null!;
+        public virtual Participant Participant { get; set; } = null!;
     }
 
     [Table("results")]
@@ -143,11 +140,11 @@ namespace CompetitionApp.Models
         public virtual Competition Competition { get; set; } = null!;
 
         [ForeignKey("ParticipantId")]
-        public virtual ParticipantModel Participant { get; set; } = null!;
+        public virtual Participant Participant { get; set; } = null!;
     }
 
     [Table("final_results")]
-    public class FinalResultModel
+    public class FinalResult
     {
         [Key]
         [Column("id")]
@@ -185,7 +182,18 @@ namespace CompetitionApp.Models
         public virtual Competition Competition { get; set; } = null!;
 
         [ForeignKey("ParticipantId")]
-        public virtual ParticipantModel Participant { get; set; } = null!;
+        public virtual Participant Participant { get; set; } = null!;
+    }
+
+    // Modelo para configuração de penalidades
+    public class PenaltyConfiguration
+    {
+        public decimal BravoPenalty { get; set; } = 5.0m;
+        public decimal CharliePenalty { get; set; } = 10.0m;
+        public decimal MissPenalty { get; set; } = 10.0m;
+        public decimal FaultPenalty { get; set; } = 10.0m;
+        public decimal VitimaPenalty { get; set; } = 10.0m;
+        public decimal PlatePenalty { get; set; } = 5.0m;
     }
 }
 

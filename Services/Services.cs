@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CompetitionApp.Services
 {
-    // Interfaces específicas para PostgreSQL
-    public interface IPostgreSQLCompetitionService
+    // Interfaces
+    public interface ICompetitionService
     {
         Task<Competition> CreateCompetitionAsync(string name, string? description, DateTime competitionDate);
         Task<Competition?> GetCompetitionAsync(int id);
@@ -14,18 +14,18 @@ namespace CompetitionApp.Services
         Task DeleteCompetitionAsync(int id);
     }
 
-    public interface IPostgreSQLParticipantService
+    public interface IParticipantService
     {
-        Task<ParticipantModel> CreateParticipantAsync(string name, string? email = null);
-        Task<ParticipantModel?> GetParticipantAsync(int id);
-        Task<ParticipantModel?> GetParticipantByNameAsync(string name);
-        Task<IEnumerable<ParticipantModel>> GetAllParticipantsAsync();
-        Task<ParticipantModel> UpdateParticipantAsync(ParticipantModel participant);
+        Task<Participant> CreateParticipantAsync(string name, string? email = null);
+        Task<Participant?> GetParticipantAsync(int id);
+        Task<Participant?> GetParticipantByNameAsync(string name);
+        Task<IEnumerable<Participant>> GetAllParticipantsAsync();
+        Task<Participant> UpdateParticipantAsync(Participant participant);
         Task DeleteParticipantAsync(int id);
         Task<CompetitionParticipant> RegisterParticipantInCompetitionAsync(int competitionId, int participantId);
     }
 
-    public interface IPostgreSQLResultService
+    public interface IResultService
     {
         Task<Result> SaveResultAsync(int competitionId, int participantId, int roundNumber, decimal timeInSeconds, 
             int bravoCount, int charlieCount, int missCount, int faultCount, int vitimaCount, int plateCount, 
@@ -38,22 +38,22 @@ namespace CompetitionApp.Services
         Task DeleteResultsByCompetitionAsync(int competitionId);
     }
 
-    public interface IPostgreSQLFinalResultService
+    public interface IFinalResultService
     {
-        Task<IEnumerable<FinalResultModel>> CalculateAndSaveFinalResultsAsync(int competitionId);
-        Task<FinalResultModel?> GetFinalResultAsync(int competitionId, int participantId);
-        Task<IEnumerable<FinalResultModel>> GetFinalResultsByCompetitionIdAsync(int competitionId);
+        Task<IEnumerable<FinalResult>> CalculateAndSaveFinalResultsAsync(int competitionId);
+        Task<FinalResult?> GetFinalResultAsync(int competitionId, int participantId);
+        Task<IEnumerable<FinalResult>> GetFinalResultsByCompetitionIdAsync(int competitionId);
         Task DeleteFinalResultAsync(int id);
         Task DeleteFinalResultsByCompetitionAsync(int competitionId);
     }
 
-    // Implementações dos serviços
-    public class PostgreSQLCompetitionService : IPostgreSQLCompetitionService
+    // Implementações
+    public class CompetitionService : ICompetitionService
     {
         private readonly CompetitionDbContext _context;
-        private readonly ILogger<PostgreSQLCompetitionService> _logger;
+        private readonly ILogger<CompetitionService> _logger;
 
-        public PostgreSQLCompetitionService(CompetitionDbContext context, ILogger<PostgreSQLCompetitionService> logger)
+        public CompetitionService(CompetitionDbContext context, ILogger<CompetitionService> logger)
         {
             _context = context;
             _logger = logger;
@@ -158,29 +158,28 @@ namespace CompetitionApp.Services
         }
     }
 
-    public class PostgreSQLParticipantService : IPostgreSQLParticipantService
+    public class ParticipantService : IParticipantService
     {
         private readonly CompetitionDbContext _context;
-        private readonly ILogger<PostgreSQLParticipantService> _logger;
+        private readonly ILogger<ParticipantService> _logger;
 
-        public PostgreSQLParticipantService(CompetitionDbContext context, ILogger<PostgreSQLParticipantService> logger)
+        public ParticipantService(CompetitionDbContext context, ILogger<ParticipantService> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        public async Task<ParticipantModel> CreateParticipantAsync(string name, string? email = null)
+        public async Task<Participant> CreateParticipantAsync(string name, string? email = null)
         {
             try
             {
-                // Verificar se já existe
                 var existing = await GetParticipantByNameAsync(name);
                 if (existing != null)
                 {
                     return existing;
                 }
 
-                var participant = new ParticipantModel
+                var participant = new Participant
                 {
                     Name = name,
                     Email = email,
@@ -201,7 +200,7 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<ParticipantModel?> GetParticipantAsync(int id)
+        public async Task<Participant?> GetParticipantAsync(int id)
         {
             try
             {
@@ -214,7 +213,7 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<ParticipantModel?> GetParticipantByNameAsync(string name)
+        public async Task<Participant?> GetParticipantByNameAsync(string name)
         {
             try
             {
@@ -228,7 +227,7 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<IEnumerable<ParticipantModel>> GetAllParticipantsAsync()
+        public async Task<IEnumerable<Participant>> GetAllParticipantsAsync()
         {
             try
             {
@@ -243,7 +242,7 @@ namespace CompetitionApp.Services
             }
         }
 
-        public async Task<ParticipantModel> UpdateParticipantAsync(ParticipantModel participant)
+        public async Task<Participant> UpdateParticipantAsync(Participant participant)
         {
             try
             {
@@ -287,7 +286,6 @@ namespace CompetitionApp.Services
         {
             try
             {
-                // Verificar se já está registrado
                 var existing = await _context.CompetitionParticipants
                     .FirstOrDefaultAsync(cp => cp.CompetitionId == competitionId && cp.ParticipantId == participantId);
 

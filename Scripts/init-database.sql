@@ -71,6 +71,7 @@ BEGIN
             participant_id INTEGER NOT NULL,
             round_number INTEGER NOT NULL,
             time_in_seconds DECIMAL(10,3) NOT NULL DEFAULT 0,
+            alfa_count INTEGER NOT NULL DEFAULT 0,
             bravo_count INTEGER NOT NULL DEFAULT 0,
             charlie_count INTEGER NOT NULL DEFAULT 0,
             miss_count INTEGER NOT NULL DEFAULT 0,

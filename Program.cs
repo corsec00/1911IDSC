@@ -24,7 +24,6 @@ builder.Services.AddDbContext<CompetitionDbContext>(options =>
             errorCodesToAdd: null);
     });
     
-    // Habilitar logs sensíveis apenas em desenvolvimento
     if (builder.Environment.IsDevelopment())
     {
         options.EnableSensitiveDataLogging();
@@ -32,22 +31,18 @@ builder.Services.AddDbContext<CompetitionDbContext>(options =>
     }
 });
 
-// Registrar apenas os serviços PostgreSQL (sem conflitos)
-builder.Services.AddScoped<IPostgreSQLCompetitionService, PostgreSQLCompetitionService>();
-builder.Services.AddScoped<IPostgreSQLParticipantService, PostgreSQLParticipantService>();
+// Registrar serviços
+builder.Services.AddScoped<ICompetitionService, CompetitionService>();
+builder.Services.AddScoped<IParticipantService, ParticipantService>();
+builder.Services.AddScoped<IResultService, ResultService>();
+builder.Services.AddScoped<IFinalResultService, FinalResultService>();
 
 // Adicionar Razor Pages
 builder.Services.AddRazorPages();
 
-// Configurar middleware para normalizar valores decimais
-builder.Services.Configure<RouteOptions>(options =>
-{
-    options.LowercaseUrls = true;
-});
-
 var app = builder.Build();
 
-// Configurar pipeline de requisições
+// Configurar pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -57,7 +52,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// Middleware para normalizar valores decimais (vírgula para ponto)
+// Middleware para normalizar valores decimais
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == "POST" && context.Request.HasFormContentType)
@@ -68,7 +63,6 @@ app.Use(async (context, next) =>
         foreach (var item in form)
         {
             var value = item.Value.ToString();
-            // Normalizar valores decimais (trocar vírgula por ponto)
             if (decimal.TryParse(value.Replace(',', '.'), System.Globalization.NumberStyles.Float, 
                 System.Globalization.CultureInfo.InvariantCulture, out _))
             {
@@ -80,7 +74,6 @@ app.Use(async (context, next) =>
             }
         }
         
-        // Substituir o form original pelo normalizado
         context.Request.Form = new FormCollection(normalizedForm);
     }
     
@@ -89,7 +82,6 @@ app.Use(async (context, next) =>
 
 app.UseRouting();
 app.UseAuthorization();
-
 app.MapRazorPages();
 
 // Executar migrações automaticamente em desenvolvimento
@@ -101,16 +93,15 @@ if (app.Environment.IsDevelopment())
         try
         {
             await context.Database.MigrateAsync();
-            app.Logger.LogInformation("Migrações do banco de dados aplicadas com sucesso");
+            app.Logger.LogInformation("Migrações aplicadas com sucesso");
         }
         catch (Exception ex)
         {
-            app.Logger.LogError(ex, "Erro ao aplicar migrações do banco de dados");
+            app.Logger.LogError(ex, "Erro ao aplicar migrações");
         }
     }
 }
 
 app.Logger.LogInformation("Aplicação iniciada com PostgreSQL");
-
 app.Run();
 
