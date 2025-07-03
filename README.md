@@ -1,83 +1,242 @@
-# [Aplicação de Gerenciamento de IDSC 1911](https://1911idsc-esbqg7huarehd2ds.centralus-01.azurewebsites.net)
-![Build Status](https://github.com/corsec00/1911IDSC/actions/workflows/azure-deploy.yml/badge.svg)
-![.NET](https://img.shields.io/badge/.NET-8.0-blue)
-![Último Release](https://img.shields.io/github/v/release/corsec00/1911IDSC)
-![Contributors](https://img.shields.io/github/contributors/corsec00/1911IDSC)
-![Issues](https://img.shields.io/github/issues/corsec00/1911IDSC)
-![Repo Size](https://img.shields.io/github/repo-size/corsec00/1911IDSC)
+# Competition App - PostgreSQL Version
 
-## Head
-Autor: Leonardo Santos Silva<br />
-Data Release: 14/06/2025<br />
-Status: Produção, V1.0.0<br />
-Testes: 
-- Windows: Microsoft Edge e Google Chrome
-- Android: Google Chrome
+Sistema de gerenciamento de competições esportivas usando ASP.NET Core e PostgreSQL.
 
-## Descrição
-Esta aplicação web foi desenvolvida em ASP.NET Core para gerenciar competições com até 30 participantes, registrando tempos e penalidades em duas rodadas e gerando uma classificação final baseada no melhor tempo.
-Link para a Aplicação: https://1911idsc-esbqg7huarehd2ds.centralus-01.azurewebsites.net
-![Exemplo](img/paginaExemplo.jpg)
+## 🎯 Características
 
-## Funcionalidades
+- **Backend**: ASP.NET Core 8.0 com Razor Pages
+- **Banco de dados**: PostgreSQL com Entity Framework Core
+- **Deploy**: Azure App Service com Azure Database for PostgreSQL
+- **CI/CD**: GitHub Actions automatizado
 
-- Cadastro de até 30 participantes
-- Configuração personalizada de penalidades
-- Registro de tempos e penalidades em duas rodadas
-- Classificação automática baseada no melhor tempo entre as rodadas
-- Exportação dos resultados
+## 🚀 Início Rápido
 
-## Configuração de Penalidades
+### Pré-requisitos
 
-A aplicação permite configurar os valores (em segundos) para cada tipo de penalidade:
+- .NET 8.0 SDK
+- PostgreSQL (local ou Azure)
+- Azure CLI (para deploy)
 
-- **Bravo**: Penalidade leve (padrão: 2s)
-- **Charlie**: Penalidade média (padrão: 5s)
-- **Miss**: Penalidade por erro de alvo (padrão: 10s)
-- **Vítima**: Penalidade por atingir vítima (padrão: 10s)
-- **Plate**: Penalidade por erro em plate (padrão: 10s)
-- **Fault**: Penalidade por falta (padrão: 10s)
-- **Desclassificado**: Valor para indicar desclassificação (padrão: 999s)
+### Configuração Local
 
-## Como Usar
+1. **Clone o repositório**
+```bash
+git clone <seu-repositorio>
+cd CompetitionApp_Clean
+```
 
-### 1. Configurar Penalidades
+2. **Configure a connection string**
+```bash
+# Opção 1: appsettings.json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=competitiondb;Username=postgres;Password=password;"
+  }
+}
 
-Antes de iniciar a competição, acesse a página de configuração de penalidades para definir os valores desejados para cada tipo de penalidade.
+# Opção 2: Variável de ambiente
+export DATABASE_CONNECTION_STRING="Host=localhost;Database=competitiondb;Username=postgres;Password=password;"
+```
 
-### 2. Cadastrar Participantes
+3. **Execute migrações**
+```bash
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+```
 
-Cadastre os participantes da competição (até 30) informando seus nomes.
+4. **Execute a aplicação**
+```bash
+dotnet run
+```
 
-### 3. Registrar Resultados da Primeira Rodada
+## ☁️ Deploy no Azure
 
-Para cada participante, registre:
-- Tempo base em segundos
-- Quantidade de cada tipo de penalidade (Bravo, Charlie, Miss, etc.)
+### 1. Criar banco PostgreSQL
+```bash
+./Scripts/setup-azure-postgresql.sh \
+  -g "CompetitionApp-RG" \
+  -s "competitionapp-db" \
+  -u "dbadmin" \
+  -p "SuaSenhaSegura123!"
+```
 
-### 4. Registrar Resultados da Segunda Rodada
+### 2. Configurar GitHub Secrets
+- `DATABASE_CONNECTION_STRING`: Connection string do PostgreSQL
+- `AZURE_WEBAPP_PUBLISH_PROFILE`: Perfil de publicação do App Service
 
-Repita o processo para a segunda rodada.
+### 3. Deploy automático
+- Push para branch `main` executa deploy automaticamente
+- Migrações são aplicadas automaticamente após deploy
 
-### 5. Visualizar Classificação Final
+## 📊 Estrutura do Banco
 
-A classificação final é calculada automaticamente com base no melhor tempo entre as duas rodadas.
+```sql
+competitions
+├── id (PK)
+├── name
+├── description
+├── competition_date
+└── timestamps
 
-### 6. Exportar Resultados
+participants
+├── id (PK)
+├── name (UNIQUE)
+├── email
+└── timestamps
 
-Exporte os resultados para impressão ou arquivamento.
+competition_participants
+├── id (PK)
+├── competition_id (FK)
+├── participant_id (FK)
+└── registered_at
 
-## Requisitos Técnicos
+results
+├── id (PK)
+├── competition_id (FK)
+├── participant_id (FK)
+├── round_number
+├── time_in_seconds
+├── penalty_counts
+├── total_time
+├── is_eliminated
+└── timestamps
 
-- .NET 8.0 ou superior
-- Navegador web moderno (Chrome, Firefox, Edge, Safari)
+final_results
+├── id (PK)
+├── competition_id (FK)
+├── participant_id (FK)
+├── position
+├── round1_time
+├── round2_time
+├── best_time
+├── best_round
+└── timestamps
+```
 
-## Implantação no Azure
+## 🔧 Comandos Úteis
 
-Para implantar esta aplicação no Azure Web App (Caso precise implementar no seu ambiente, entre em contato):
+```bash
+# Restaurar dependências
+dotnet restore
 
-![Infra Azure](img/InfraAzure.jpg)
+# Compilar
+dotnet build
 
-## Configurações de Segurança
+# Executar testes
+dotnet test
 
-Consulte [aqui](SecureConfigurationGuide.md)
+# Criar migração
+dotnet ef migrations add NomeDaMigracao
+
+# Aplicar migrações
+dotnet ef database update
+
+# Remover última migração
+dotnet ef migrations remove
+
+# Ver status das migrações
+dotnet ef migrations list
+```
+
+## 📁 Estrutura do Projeto
+
+```
+CompetitionApp_Clean/
+├── Data/
+│   └── CompetitionDbContext.cs
+├── Models/
+│   └── Models.cs
+├── Services/
+│   ├── Services.cs
+│   └── ResultServices.cs
+├── Pages/
+│   ├── Participants/
+│   ├── Rounds/
+│   ├── Results/
+│   ├── History/
+│   └── Shared/
+├── Scripts/
+│   └── setup-azure-postgresql.sh
+├── .github/workflows/
+│   └── azure-deploy-postgresql.yml
+└── wwwroot/
+```
+
+## 🛠️ Desenvolvimento
+
+### Adicionando novas funcionalidades
+
+1. **Criar modelo** em `Models/Models.cs`
+2. **Adicionar DbSet** em `CompetitionDbContext.cs`
+3. **Criar serviço** em `Services/`
+4. **Registrar serviço** em `Program.cs`
+5. **Criar páginas** em `Pages/`
+6. **Criar migração** e aplicar
+
+### Boas práticas
+
+- Use logging em todos os serviços
+- Implemente tratamento de erros
+- Valide dados de entrada
+- Use transações para operações complexas
+- Mantenha connection strings seguras
+
+## 🔒 Segurança
+
+- Connection strings em variáveis de ambiente
+- Validação de entrada em todos os formulários
+- Logs não expõem dados sensíveis
+- HTTPS obrigatório em produção
+
+## 📈 Performance
+
+- Índices em colunas frequentemente consultadas
+- Eager loading com `Include()` quando necessário
+- Paginação para listas grandes
+- Connection pooling habilitado
+
+## 🐛 Troubleshooting
+
+### Erro de conexão com banco
+```bash
+# Verificar connection string
+echo $DATABASE_CONNECTION_STRING
+
+# Testar conexão
+psql "Host=servidor;Database=db;Username=user;Password=pass"
+```
+
+### Erro de migração
+```bash
+# Resetar migrações
+dotnet ef database drop
+dotnet ef migrations remove
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+```
+
+### Erro de deploy
+- Verificar secrets do GitHub
+- Confirmar connection string
+- Verificar logs do App Service
+
+## 📞 Suporte
+
+Para problemas ou dúvidas:
+1. Verificar logs da aplicação
+2. Consultar documentação do Entity Framework
+3. Verificar status do Azure Database
+
+## 🎉 Funcionalidades
+
+- ✅ Cadastro de participantes
+- ✅ Registro de resultados (2 rodadas)
+- ✅ Cálculo automático de classificação
+- ✅ Histórico de competições
+- ✅ Export de resultados
+- ✅ Interface responsiva
+- ✅ Deploy automatizado
+- ✅ Backup automático (Azure)
+- ✅ Logs detalhados
+- ✅ Tratamento de erros
+
