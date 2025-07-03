@@ -38,17 +38,8 @@ jobs:
     # Adicionar a ação Microsoft Security DevOps para varredura de segurança
     - uses: microsoft/security-devops-action@latest
       id: msdo
-      with:
-        # Opcional: Especifique o caminho para o seu código-fonte se não for o diretório raiz do repositório
-        # targetPath: "."
-        # Opcional: Desabilite ferramentas específicas se necessário
-        # disable: "templateAnalyzer,bandit"
-        # Opcional: Habilite ferramentas específicas
-        # enable: "eslint"
-        # Opcional: Defina o nível de saída para depuração
-        # verbose: true
 
-    # Opcional: Upload dos resultados SARIF para o GitHub Code Scanning
+      # Opcional: Upload dos resultados SARIF para o GitHub Code Scanning
     - uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: ${{ steps.msdo.outputs.sarifFile }}
