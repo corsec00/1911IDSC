@@ -1,0 +1,64 @@
+
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: List directory contents
+      run: ls -la
+      
+    - name: Find csproj files
+      run: find . -name "*.csproj"
+      
+    - name: Restore dependencies
+      run: dotnet restore ./CompetitionApp.csproj
+
+    - name: Build with dotnet
+      run: |
+        dotnet build ./CompetitionApp.csproj --configuration Release
+      
+    - name: dotnet publish
+      run: |
+        dotnet publish ./CompetitionApp.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+    # Adicionar a ação Microsoft Security DevOps para varredura de segurança
+    - uses: microsoft/security-devops-action@latest
+      id: msdo
+      with:
+        # Opcional: Especifique o caminho para o seu código-fonte se não for o diretório raiz do repositório
+        # targetPath: "."
+        # Opcional: Desabilite ferramentas específicas se necessário
+        # disable: "templateAnalyzer,bandit"
+        # Opcional: Habilite ferramentas específicas
+        # enable: "eslint"
+        # Opcional: Defina o nível de saída para depuração
+        # verbose: true
+
+    # Opcional: Upload dos resultados SARIF para o GitHub Code Scanning
+    - uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ${{ steps.msdo.outputs.sarifFile }}
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: '1911idsc'  # Será substituído pelo nome real do seu Web App
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ${{env.DOTNET_ROOT}}/myapp
+
+

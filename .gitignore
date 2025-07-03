@@ -1,0 +1,10 @@
+.vscode/
+bin/
+Versions/
+Versions/temp/
+DataModel/
+obj/
+*.PublishSettings
+*.SAConnectionStrings
+*.ps1
+temp.txt

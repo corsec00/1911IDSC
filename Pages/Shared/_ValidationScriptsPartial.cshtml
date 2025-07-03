@@ -1,0 +1,25 @@
+@{
+    // Adiciona os scripts necessários para o jQuery e Bootstrap
+    var libPath = "https://cdn.jsdelivr.net/npm";
+}
+
+<!-- jQuery -->
+<script src="@libPath/jquery@3.6.0/dist/jquery.min.js"></script>
+
+<!-- jQuery Validation -->
+<script src="@libPath/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+<script src="@libPath/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    // Configuração adicional para validação
+    $.validator.setDefaults({
+        errorElement: 'span',
+        errorClass: 'text-danger',
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
+    });
+</script>
