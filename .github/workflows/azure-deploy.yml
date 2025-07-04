@@ -1,4 +1,3 @@
-
 name: Deploy to Azure Web App
 
 on:
@@ -26,15 +25,18 @@ jobs:
       
     - name: Restore dependencies
       run: dotnet restore ./CompetitionApp.csproj
+    # Resstaura as dependências do NuGET para as conexões com a Azure
 
     - name: Build with dotnet
       run: |
+        # Especifica o caminho completo para o arquivo .csproj
         dotnet build ./CompetitionApp.csproj --configuration Release
       
     - name: dotnet publish
       run: |
+        # Especifica o caminho completo para o arquivo .csproj
         dotnet publish ./CompetitionApp.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
+        
     # Adicionar a ação Microsoft Security DevOps para varredura de segurança
     - uses: microsoft/security-devops-action@latest
       id: msdo
@@ -51,5 +53,3 @@ jobs:
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ${{env.DOTNET_ROOT}}/myapp
-
-

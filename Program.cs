@@ -13,13 +13,17 @@ builder.Services.AddRazorPages()
     {
         // Configure Razor Pages options if needed
     })
-    .AddMvcOptions(options =>
-    {
-        // Configure model binding to accept both comma and dot as decimal separators
-        options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
-            _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
-    });
-
+.AddMvcOptions(options =>
+{
+    // Configure model binding to accept both comma and dot as decimal separators
+    options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
+        _ => "Por favor, insira um número válido. Use ponto ou vírgula como separador decimal.");
+})
+// Adicione esta configuração para aceitar tanto vírgula quanto ponto como separador decimal
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+});
 // Configure globalization options to support multiple cultures
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -70,31 +74,29 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// Adicione este middleware antes de app.UseRouting() para normalizar valores decimais
 app.Use(async (context, next) =>
 {
     // Normalizar valores decimais no formulário
     if (context.Request.HasFormContentType && context.Request.Method == "POST")
     {
         var form = await context.Request.ReadFormAsync();
-        var normalizedForm = new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>();
-        
-        foreach (var kvp in form)
+        foreach (var key in form.Keys)
         {
-            if (!string.IsNullOrEmpty(kvp.Value) && kvp.Value.Count > 0)
+            if (form[key].Count > 0 && !string.IsNullOrEmpty(form[key][0]))
             {
-                // Substituir vírgula por ponto para garantir parsing correto de decimais
-                var normalizedValue = kvp.Value[0]?.Replace(',', '.') ?? kvp.Value[0];
-                normalizedForm[kvp.Key] = new Microsoft.Extensions.Primitives.StringValues(normalizedValue);
-            }
-            else
-            {
-                normalizedForm[kvp.Key] = kvp.Value;
+                // Substituir vírgula por ponto para garantir parsing correto
+                var value = form[key][0].Replace(',', '.');
+                context.Request.Form = new Microsoft.AspNetCore.Http.FormCollection(
+                    new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>(
+                        context.Request.Form.ToDictionary(
+                            x => x.Key,
+                            x => x.Key == key ? new Microsoft.Extensions.Primitives.StringValues(value) : x.Value
+                        )
+                    ),
+                    context.Request.Form.Files
+                );
             }
         }
-        
-        // Substituir o formulário original pelo normalizado
-        context.Request.Form = new Microsoft.AspNetCore.Http.FormCollection(normalizedForm, form.Files);
     }
     await next();
 });

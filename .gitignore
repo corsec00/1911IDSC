@@ -1,7 +1,5 @@
-.vscode/
 bin/
 Versions/
-Versions/temp/
 DataModel/
 obj/
 *.PublishSettings

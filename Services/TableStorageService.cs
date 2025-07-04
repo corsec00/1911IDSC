@@ -32,8 +32,14 @@ namespace CompetitionApp.Services
         {
             if (string.IsNullOrEmpty(_connectionString))
             {
-                // Primeiro, tentar obter da variável de ambiente
-                _connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+                bool useEnvVar = _configuration.GetValue<bool>("AzureTableStorage:UseEnvironmentVariable");
+                string envVarName = _configuration["AzureTableStorage:EnvironmentVariableName"];
+                
+                if (useEnvVar && !string.IsNullOrEmpty(envVarName))
+                {
+                    // Obter a connection string da variável de ambiente
+                    _connectionString = Environment.GetEnvironmentVariable(envVarName);
+                }
                 
                 // Se não encontrou na variável de ambiente, tentar obter da configuração
                 if (string.IsNullOrEmpty(_connectionString))
@@ -45,13 +51,6 @@ namespace CompetitionApp.Services
                 if (string.IsNullOrEmpty(_connectionString))
                 {
                     _connectionString = "UseDevelopmentStorage=true";
-                    
-                    // Log para debug - remover em produção
-                    Console.WriteLine("AVISO: Usando emulador local do Azure Storage. Configure AZURE_STORAGE_CONNECTION_STRING para usar Azure Storage real.");
-                }
-                else
-                {
-                    Console.WriteLine("Azure Storage configurado com sucesso.");
                 }
             }
             return _connectionString;
