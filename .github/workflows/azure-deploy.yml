@@ -36,13 +36,13 @@ jobs:
       run: |
         # Especifica o caminho completo para o arquivo .csproj
         dotnet publish ./CompetitionApp.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
-        
+
     # Adicionar a ação Microsoft Security DevOps para varredura de segurança
     - uses: microsoft/security-devops-action@latest
       id: msdo
 
       # Opcional: Upload dos resultados SARIF para o GitHub Code Scanning
-    - uses: github/codeql-action/upload-sarif@v2
+    - uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: ${{ steps.msdo.outputs.sarifFile }}
 
