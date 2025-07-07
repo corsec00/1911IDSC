@@ -171,7 +171,7 @@ else
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var result in Model.Round2Results.OrderBy(r => r.TotalTime))
+                            @foreach (var result in Model.Round2Results.OrderBy(r => r.CalculateTotalTime()))
                             {
                                 <tr>
                                     <td>@result.Name</td>
@@ -185,13 +185,13 @@ else
                                     <td>@result.PlateCount</td>
                                     <td>@(result.AlfaCount + result.BravoCount + result.CharlieCount + result.MissCount + result.FaltaCount + result.VitimaCount + result.PlateCount)</td>
                                     <td>
-                                        @if (result.TotalTime >= config.DisqualifiedValue)
+                                        @if (result.CalculateTotalTime() >= config.DisqualifiedValue)
                                         {
                                             <span class="text-danger">DESCLASSIFICADO</span>
                                         }
                                         else
                                         {
-                                            @result.TotalTime.ToString("F2")<text>s</text>
+                                            @result.CalculateTotalTime().ToString("F2")<text>s</text>
                                         }
                                     </td>
                                     <td>
