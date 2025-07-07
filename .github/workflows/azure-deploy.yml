@@ -1,6 +1,8 @@
 name: Deploy to Azure Web App
 permissions:
+  actions: read
   contents: read
+  security-events: write
   pull-requests: write
 on:
   push:
