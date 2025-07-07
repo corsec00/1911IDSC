@@ -10,49 +10,52 @@ namespace CompetitionApp.Pages.Rounds
     {
         [BindProperty]
         public string ParticipantName { get; set; } = string.Empty;
-        
+
         [BindProperty]
         public decimal TimeInSeconds { get; set; }
-        
+
+        [BindProperty]
+        public int AlfaCount { get; set; }
+
         [BindProperty]
         public int BravoCount { get; set; }
-        
+
         [BindProperty]
         public int CharlieCount { get; set; }
-        
+
         [BindProperty]
         public int MissCount { get; set; }
-        
+
         [BindProperty]
         public int FaltaCount { get; set; }
-        
+
         [BindProperty]
         public int VitimaCount { get; set; }
-        
+
         [BindProperty]
         public int PlateCount { get; set; }
-        
+
         [BindProperty]
         public bool IsEditing { get; set; }
-        
+
         public List<Participant> Participants { get; set; } = new List<Participant>();
         public List<Participant> Round2Results { get; set; } = new List<Participant>();
-        
+
         public void OnGet()
         {
             LoadData();
         }
-        
+
         public IActionResult OnPost()
         {
             LoadData();
-            
+
             if (string.IsNullOrWhiteSpace(ParticipantName))
             {
                 ModelState.AddModelError("ParticipantName", "Selecione um participante.");
                 return Page();
             }
-            
+
             // Verificar se estamos editando ou adicionando um novo resultado
             if (IsEditing)
             {
@@ -60,15 +63,16 @@ namespace CompetitionApp.Pages.Rounds
                 var existingResult = Round2Results.FirstOrDefault(p => p.Name == ParticipantName);
                 if (existingResult != null)
                 {
-                    // Atualizar os valores
+                    // Atualizar os valores incluindo AlfaCount
                     existingResult.TimeInSeconds = TimeInSeconds;
+                    existingResult.AlfaCount = AlfaCount;
                     existingResult.BravoCount = BravoCount;
                     existingResult.CharlieCount = CharlieCount;
                     existingResult.MissCount = MissCount;
                     existingResult.FaltaCount = FaltaCount;
                     existingResult.VitimaCount = VitimaCount;
                     existingResult.PlateCount = PlateCount;
-                    
+
                     // Salvar as alterações
                     HttpContext.Session.SetString("Round2Results", JsonSerializer.Serialize(Round2Results));
                     return RedirectToPage();
@@ -87,12 +91,13 @@ namespace CompetitionApp.Pages.Rounds
                     ModelState.AddModelError("ParticipantName", "Este participante já tem resultado registrado.");
                     return Page();
                 }
-                
-                // Criar novo resultado
+
+                // Criar novo resultado incluindo AlfaCount
                 var result = new Participant
                 {
                     Name = ParticipantName,
                     TimeInSeconds = TimeInSeconds,
+                    AlfaCount = AlfaCount,
                     BravoCount = BravoCount,
                     CharlieCount = CharlieCount,
                     MissCount = MissCount,
@@ -100,28 +105,27 @@ namespace CompetitionApp.Pages.Rounds
                     VitimaCount = VitimaCount,
                     PlateCount = PlateCount
                 };
-                
+
                 Round2Results.Add(result);
                 HttpContext.Session.SetString("Round2Results", JsonSerializer.Serialize(Round2Results));
-                
                 return RedirectToPage();
             }
         }
-        
-        public IActionResult OnPostRemove(string name)
+
+        public IActionResult OnPostDelete(string participantName)
         {
             LoadData();
-            
-            var result = Round2Results.FirstOrDefault(p => p.Name == name);
+
+            var result = Round2Results.FirstOrDefault(p => p.Name == participantName);
             if (result != null)
             {
                 Round2Results.Remove(result);
                 HttpContext.Session.SetString("Round2Results", JsonSerializer.Serialize(Round2Results));
             }
-            
+
             return RedirectToPage();
         }
-        
+
         private void LoadData()
         {
             var participantsJson = HttpContext.Session.GetString("Participants");
@@ -129,7 +133,7 @@ namespace CompetitionApp.Pages.Rounds
             {
                 Participants = JsonSerializer.Deserialize<List<Participant>>(participantsJson) ?? new List<Participant>();
             }
-            
+
             var round2ResultsJson = HttpContext.Session.GetString("Round2Results");
             if (!string.IsNullOrEmpty(round2ResultsJson))
             {
@@ -138,10 +142,17 @@ namespace CompetitionApp.Pages.Rounds
                 // Garantir que participantes antigos tenham os novos campos inicializados
                 foreach (var result in Round2Results)
                 {
-                    if (result.VitimaCount == null) result.VitimaCount = 0;
-                    if (result.PlateCount == null) result.PlateCount = 0;
+                    // Inicializar campos que podem não existir em dados antigos
+                    if (result.VitimaCount == 0 && result.PlateCount == 0 && result.AlfaCount == 0)
+                    {
+                        // Apenas inicializar se todos estão zerados (dados antigos)
+                        result.VitimaCount = 0;
+                        result.PlateCount = 0;
+                        result.AlfaCount = 0;
+                    }
                 }
             }
         }
     }
 }
+
