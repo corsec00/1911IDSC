@@ -23,65 +23,116 @@
             <div class="card-body">
                 <form method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    
+
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label asp-for="PenaltyConfig.BravoValue" class="control-label">Bravo (segundos)</label>
-                                <input asp-for="PenaltyConfig.BravoValue" class="form-control" />
-                                <span asp-validation-for="PenaltyConfig.BravoValue" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label asp-for="PenaltyConfig.CharlieValue" class="control-label">Charlie (segundos)</label>
-                                <input asp-for="PenaltyConfig.CharlieValue" class="form-control" />
-                                <span asp-validation-for="PenaltyConfig.CharlieValue" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label asp-for="PenaltyConfig.MissValue" class="control-label">Miss (segundos)</label>
-                                <input asp-for="PenaltyConfig.MissValue" class="form-control" />
-                                <span asp-validation-for="PenaltyConfig.MissValue" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label asp-for="PenaltyConfig.VitimaValue" class="control-label">Vítima (segundos)</label>
-                                <input asp-for="PenaltyConfig.VitimaValue" class="form-control" />
-                                <span asp-validation-for="PenaltyConfig.VitimaValue" class="text-danger"></span>
+                                <label asp-for="AlfaValue" class="form-label">Alfa (segundos):</label>
+                                <input asp-for="AlfaValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Penalidade para marcadores Alfa (padrão: 0 segundos)</div>
+                                <span asp-validation-for="AlfaValue" class="text-danger"></span>
                             </div>
                         </div>
-                        
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label asp-for="PenaltyConfig.PlateValue" class="control-label">Plate (segundos)</label>
-                                <input asp-for="PenaltyConfig.PlateValue" class="form-control" />
-                                <span asp-validation-for="PenaltyConfig.PlateValue" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label asp-for="PenaltyConfig.FaultValue" class="control-label">Fault (segundos)</label>
-                                <input asp-for="PenaltyConfig.FaultValue" class="form-control" />
-                                <span asp-validation-for="PenaltyConfig.FaultValue" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label asp-for="PenaltyConfig.DisqualifiedValue" class="control-label">Desclassificado (segundos)</label>
-                                <input asp-for="PenaltyConfig.DisqualifiedValue" class="form-control" />
-                                <span asp-validation-for="PenaltyConfig.DisqualifiedValue" class="text-danger"></span>
+                                <label asp-for="BravoValue" class="form-label">Bravo (segundos):</label>
+                                <input asp-for="BravoValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Penalidade leve (padrão: 2 segundos)</div>
+                                <span asp-validation-for="BravoValue" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="form-group text-center">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="CharlieValue" class="form-label">Charlie (segundos):</label>
+                                <input asp-for="CharlieValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Penalidade média (padrão: 5 segundos)</div>
+                                <span asp-validation-for="CharlieValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="MissValue" class="form-label">Miss (segundos):</label>
+                                <input asp-for="MissValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Penalidade por erro de alvo (padrão: 10 segundos)</div>
+                                <span asp-validation-for="MissValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="FaultValue" class="form-label">Fault (segundos):</label>
+                                <input asp-for="FaultValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Penalidade por falta (padrão: 10 segundos)</div>
+                                <span asp-validation-for="FaultValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="VitimaValue" class="form-label">Vítima (segundos):</label>
+                                <input asp-for="VitimaValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Penalidade por atingir vítima (padrão: 10 segundos)</div>
+                                <span asp-validation-for="VitimaValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="PlateValue" class="form-label">Plate (segundos):</label>
+                                <input asp-for="PlateValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Penalidade por erro em plate (padrão: 10 segundos)</div>
+                                <span asp-validation-for="PlateValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="DisqualifiedValue" class="form-label">Desclassificado (segundos):</label>
+                                <input asp-for="DisqualifiedValue" class="form-control" type="number" step="0.01" min="0" />
+                                <div class="form-text">Valor para indicar desclassificação (padrão: 999 segundos)</div>
+                                <span asp-validation-for="DisqualifiedValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <button type="submit" class="btn btn-primary">Salvar Configurações</button>
                         <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
                     </div>
                 </form>
             </div>
         </div>
+
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">Informações sobre as Penalidades</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Alfa:</strong> Marcadores disparados sem penalidade de tempo (0s por padrão)</li>
+                    <li><strong>Bravo:</strong> Penalidade leve aplicada por infrações menores</li>
+                    <li><strong>Charlie:</strong> Penalidade média aplicada por infrações moderadas</li>
+                    <li><strong>Miss:</strong> Penalidade por erro de alvo ou tiro perdido</li>
+                    <li><strong>Fault:</strong> Penalidade por falta ou erro procedural</li>
+                    <li><strong>Vítima:</strong> Penalidade por atingir alvo não-hostil</li>
+                    <li><strong>Plate:</strong> Penalidade por erro em plate ou alvo específico</li>
+                    <li><strong>Desclassificado:</strong> Valor usado para marcar participantes desclassificados</li>
+                </ul>
+                <div class="alert alert-warning">
+                    <strong>Nota:</strong> O total de marcadores inclui todos os tipos (Alfa + Bravo + Charlie + Miss + Fault + Vítima + Plate). 
+                    O campo Alfa permite controlar quantos marcadores foram disparados sem adicionar penalidade de tempo.
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="/Pages/Shared/_ValidationScriptsPartial.cshtml" />
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

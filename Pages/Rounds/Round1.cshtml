@@ -8,12 +8,10 @@
 
 <h1>Primeira Rodada</h1>
 
-
-
 @if (Model.Participants.Count == 0)
 {
     <div class="alert alert-warning">
-        Não há participantes cadastrados. <a asp-page="/Participants/Register">Cadastre participantes</a> antes de iniciar a rodada.
+        Não há participantes cadastrados. <a asp-page="/Participants/Register">Cadastre participantes</a> antes de registrar os resultados.
     </div>
 }
 else
@@ -46,17 +44,27 @@ else
 
                 <div class="form-group mb-3">
                     <label for="timeInSeconds">Tempo (em segundos):</label>
-                    <input type="number" id="timeInSeconds" name="TimeInSeconds" class="form-control" min="0" max="@config.DisqualifiedValue" step="0.001" required />
-                    <small class="form-text text-muted">Use @config.DisqualifiedValue para indicar que o participante foi desclassificado. Você pode inserir até 3 casas decimais (ex: 120,341).</small>
+                    <input type="number" id="timeInSeconds" name="TimeInSeconds" class="form-control" min="0" max="999" step="0.01" required />
+                    <small class="form-text text-muted">Use @config.DisqualifiedValue para indicar que o participante foi desclassificado.</small>
                 </div>
 
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
+                            <label for="alfaCount">Alfa (@config.AlfaValue s):</label>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('alfaCount')">-</button>
+                                <input type="number" id="alfaCount" name="AlfaCount" class="form-control text-center" value="0" min="0" readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('alfaCount')">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
                             <label for="bravoCount">Bravo (@config.BravoValue s):</label>
                             <div class="input-group">
                                 <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('bravoCount')">-</button>
-                                <input type="number" id="bravoCount" name="BravoCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <input type="number" id="bravoCount" name="BravoCount" class="form-control text-center" value="0" min="0" readonly />
                                 <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('bravoCount')">+</button>
                             </div>
                         </div>
@@ -66,18 +74,8 @@ else
                             <label for="charlieCount">Charlie (@config.CharlieValue s):</label>
                             <div class="input-group">
                                 <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('charlieCount')">-</button>
-                                <input type="number" id="charlieCount" name="CharlieCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <input type="number" id="charlieCount" name="CharlieCount" class="form-control text-center" value="0" min="0" readonly />
                                 <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('charlieCount')">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group mb-3">
-                            <label for="missCount">Miss (@config.MissValue s):</label>
-                            <div class="input-group">
-                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('missCount')">-</button>
-                                <input type="number" id="missCount" name="MissCount" class="form-control text-center" min="0" value="0" required readonly />
-                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('missCount')">+</button>
                             </div>
                         </div>
                     </div>
@@ -86,10 +84,20 @@ else
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
+                            <label for="missCount">Miss (@config.MissValue s):</label>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('missCount')">-</button>
+                                <input type="number" id="missCount" name="MissCount" class="form-control text-center" value="0" min="0" readonly />
+                                <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('missCount')">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
                             <label for="faltaCount">Fault (@config.FaultValue s):</label>
                             <div class="input-group">
                                 <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('faltaCount')">-</button>
-                                <input type="number" id="faltaCount" name="FaltaCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <input type="number" id="faltaCount" name="FaltaCount" class="form-control text-center" value="0" min="0" readonly />
                                 <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('faltaCount')">+</button>
                             </div>
                         </div>
@@ -99,193 +107,179 @@ else
                             <label for="vitimaCount">Vítima (@config.VitimaValue s):</label>
                             <div class="input-group">
                                 <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('vitimaCount')">-</button>
-                                <input type="number" id="vitimaCount" name="VitimaCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <input type="number" id="vitimaCount" name="VitimaCount" class="form-control text-center" value="0" min="0" readonly />
                                 <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('vitimaCount')">+</button>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label for="plateCount">Plate (@config.PlateValue s):</label>
                             <div class="input-group">
                                 <button type="button" class="btn btn-outline-secondary" onclick="decrementValue('plateCount')">-</button>
-                                <input type="number" id="plateCount" name="PlateCount" class="form-control text-center" min="0" value="0" required readonly />
+                                <input type="number" id="plateCount" name="PlateCount" class="form-control text-center" value="0" min="0" readonly />
                                 <button type="button" class="btn btn-outline-secondary" onclick="incrementValue('plateCount')">+</button>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label>Total de Marcadores:</label>
+                            <div class="form-control-plaintext" id="totalMarkers">0</div>
+                            <small class="form-text text-muted">Soma de todos os marcadores (incluindo Alfa)</small>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-primary" id="submitButton">Registrar Resultado</button>
-                    <button type="button" class="btn btn-secondary" id="cancelButton" style="display:none;" onclick="cancelEdit()">Cancelar Edição</button>
+                <div class="form-group mb-3">
+                    <label>Tempo Total Calculado:</label>
+                    <div class="form-control-plaintext" id="totalTime">0.00 segundos</div>
                 </div>
+
+                <button type="submit" class="btn btn-primary">Salvar Resultado</button>
+                <button type="button" class="btn btn-secondary" onclick="clearForm()">Limpar</button>
             </form>
-            
-            <script>
-                function incrementValue(fieldId) {
-                    const field = document.getElementById(fieldId);
-                    const currentValue = parseInt(field.value) || 0;
-                    field.value = currentValue + 1;
-                }
-                
-                function decrementValue(fieldId) {
-                    const field = document.getElementById(fieldId);
-                    const currentValue = parseInt(field.value) || 0;
-                    if (currentValue > 0) {
-                        field.value = currentValue - 1;
-                    }
-                }
-                
-                function editResult(name, time, bravo, charlie, miss, falta, vitima, plate) {
-                    // Marcar que estamos editando
-                    document.getElementById('isEditing').value = 'true';
-                    
-                    // Selecionar o participante
-                    const select = document.getElementById('participantSelect');
-                    for (let i = 0; i < select.options.length; i++) {
-                        if (select.options[i].value === name) {
-                            select.options[i].selected = true;
-                            select.options[i].disabled = false;
-                            break;
-                        }
-                    }
-                    
-                    // Preencher os campos com os valores atuais
-                    document.getElementById('timeInSeconds').value = time;
-                    document.getElementById('bravoCount').value = bravo;
-                    document.getElementById('charlieCount').value = charlie;
-                    document.getElementById('missCount').value = miss;
-                    document.getElementById('faltaCount').value = falta;
-                    document.getElementById('vitimaCount').value = vitima;
-                    document.getElementById('plateCount').value = plate;
-                    
-                    // Atualizar o texto do botão e mostrar o botão cancelar
-                    document.getElementById('submitButton').textContent = 'Atualizar Resultado';
-                    document.getElementById('cancelButton').style.display = 'inline-block';
-                    
-                    // Rolar para o formulário
-                    document.getElementById('resultForm').scrollIntoView({ behavior: 'smooth' });
-                }
-                
-                function cancelEdit() {
-                    // Resetar o formulário
-                    document.getElementById('resultForm').reset();
-                    document.getElementById('isEditing').value = 'false';
-                    document.getElementById('submitButton').textContent = 'Registrar Resultado';
-                    document.getElementById('cancelButton').style.display = 'none';
-                    
-                    // Reabilitar as opções disabled
-                    const select = document.getElementById('participantSelect');
-                    for (let i = 0; i < select.options.length; i++) {
-                        if (select.options[i].getAttribute('data-completed') === 'true') {
-                            select.options[i].disabled = true;
-                        }
-                    }
-                }
-                
-                // Desabilitar a edição direta dos campos numéricos
-                document.addEventListener('DOMContentLoaded', function() {
-                    const numericFields = ['bravoCount', 'charlieCount', 'missCount', 'faltaCount', 'vitimaCount', 'plateCount'];
-                    
-                    numericFields.forEach(fieldId => {
-                        const field = document.getElementById(fieldId);
-                        
-                        // Prevenir entrada de teclado
-                        field.addEventListener('keydown', function(e) {
-                            e.preventDefault();
-                            return false;
-                        });
-                        
-                        // Prevenir colar conteúdo
-                        field.addEventListener('paste', function(e) {
-                            e.preventDefault();
-                            return false;
-                        });
-                        
-                        // Prevenir arrastar e soltar
-                        field.addEventListener('drop', function(e) {
-                            e.preventDefault();
-                            return false;
-                        });
-                    });
-                });
-            </script>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            Resultados da Primeira Rodada
-        </div>
-        <div class="card-body">
-            @if (Model.Round1Results.Count == 0)
-            {
-                <p>Nenhum resultado registrado ainda.</p>
-            }
-            else
-            {
+    @if (Model.Round1Results.Any())
+    {
+        <div class="card">
+            <div class="card-header">
+                Resultados da Primeira Rodada
+            </div>
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Posição</th>
-                                <th>Nome</th>
-                                <th>Bravo (@config.BravoValue s)</th>
-                                <th>Charlie (@config.CharlieValue s)</th>
-                                <th>Miss (@config.MissValue s)</th>
-                                <th>Fault (@config.FaultValue s)</th>
-                                <th>Vítima (@config.VitimaValue s)</th>
-                                <th>Plate (@config.PlateValue s)</th>
+                                <th>Participante</th>
                                 <th>Tempo Base</th>
+                                <th>Alfa</th>
+                                <th>Bravo</th>
+                                <th>Charlie</th>
+                                <th>Miss</th>
+                                <th>Fault</th>
+                                <th>Vítima</th>
+                                <th>Plate</th>
+                                <th>Total Marcadores</th>
                                 <th>Tempo Total</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @{
-                                var sortedResults = Model.Round1Results
-                                    .OrderBy(p => p.IsEliminated)
-                                    .ThenBy(p => p.CalculateTotalTime())
-                                    .ToList();
-
-                                for (int i = 0; i < sortedResults.Count; i++)
-                                {
-                                    var result = sortedResults[i];
-                                    <tr>
-                                        <td>@(i + 1)</td>
-                                        <td>@result.Name</td>
-                                        <td>@result.BravoCount</td>
-                                        <td>@result.CharlieCount</td>
-                                        <td>@result.MissCount</td>
-                                        <td>@result.FaltaCount</td>
-                                        <td>@result.VitimaCount</td>
-                                        <td>@result.PlateCount</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
-                                        <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime():F3}s")</td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-primary" 
-                                                        onclick="editResult('@result.Name', @result.TimeInSeconds, @result.BravoCount, @result.CharlieCount, @result.MissCount, @result.FaltaCount, @result.VitimaCount, @result.PlateCount)">
-                                                    Editar
-                                                </button>
-                                                <form method="post" asp-page-handler="Remove" class="d-inline">
-                                                    <input type="hidden" name="name" value="@result.Name" />
-                                                    <button type="submit" class="btn btn-sm btn-danger">Remover</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
+                            @foreach (var result in Model.Round1Results.OrderBy(r => r.TotalTime))
+                            {
+                                <tr>
+                                    <td>@result.Name</td>
+                                    <td>@result.TimeInSeconds.ToString("F2")s</td>
+                                    <td>@result.AlfaCount</td>
+                                    <td>@result.BravoCount</td>
+                                    <td>@result.CharlieCount</td>
+                                    <td>@result.MissCount</td>
+                                    <td>@result.FaltaCount</td>
+                                    <td>@result.VitimaCount</td>
+                                    <td>@result.PlateCount</td>
+                                    <td>@(result.AlfaCount + result.BravoCount + result.CharlieCount + result.MissCount + result.FaltaCount + result.VitimaCount + result.PlateCount)</td>
+                                    <td>
+                                        @if (result.TotalTime >= config.DisqualifiedValue)
+                                        {
+                                            <span class="text-danger">DESCLASSIFICADO</span>
+                                        }
+                                        else
+                                        {
+                                            @result.TotalTime.ToString("F2")<text>s</text>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-warning" onclick="editResult('@result.Name', @result.TimeInSeconds, @result.AlfaCount, @result.BravoCount, @result.CharlieCount, @result.MissCount, @result.FaltaCount, @result.VitimaCount, @result.PlateCount)">Editar</button>
+                                        <form method="post" style="display:inline;" asp-page-handler="Delete">
+                                            <input type="hidden" name="participantName" value="@result.Name" />
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este resultado?')">Excluir</button>
+                                        </form>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>
                 </div>
-            }
+            </div>
         </div>
-        <div class="card-footer">
-            <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
-            <a asp-page="/Rounds/Round2" class="btn btn-primary">Ir para Segunda Rodada</a>
-        </div>
-    </div>
+    }
 }
+
+@section Scripts {
+    <script>
+        function incrementValue(fieldId) {
+            var field = document.getElementById(fieldId);
+            var currentValue = parseInt(field.value) || 0;
+            field.value = currentValue + 1;
+            updateTotals();
+        }
+
+        function decrementValue(fieldId) {
+            var field = document.getElementById(fieldId);
+            var currentValue = parseInt(field.value) || 0;
+            if (currentValue > 0) {
+                field.value = currentValue - 1;
+                updateTotals();
+            }
+        }
+
+        function updateTotals() {
+            var timeInSeconds = parseFloat(document.getElementById('timeInSeconds').value) || 0;
+            var alfaCount = parseInt(document.getElementById('alfaCount').value) || 0;
+            var bravoCount = parseInt(document.getElementById('bravoCount').value) || 0;
+            var charlieCount = parseInt(document.getElementById('charlieCount').value) || 0;
+            var missCount = parseInt(document.getElementById('missCount').value) || 0;
+            var faltaCount = parseInt(document.getElementById('faltaCount').value) || 0;
+            var vitimaCount = parseInt(document.getElementById('vitimaCount').value) || 0;
+            var plateCount = parseInt(document.getElementById('plateCount').value) || 0;
+
+            var totalMarkers = alfaCount + bravoCount + charlieCount + missCount + faltaCount + vitimaCount + plateCount;
+            var totalTime = timeInSeconds + 
+                           (alfaCount * @config.AlfaValue) +
+                           (bravoCount * @config.BravoValue) + 
+                           (charlieCount * @config.CharlieValue) + 
+                           (missCount * @config.MissValue) + 
+                           (faltaCount * @config.FaultValue) + 
+                           (vitimaCount * @config.VitimaValue) + 
+                           (plateCount * @config.PlateValue);
+
+            document.getElementById('totalMarkers').textContent = totalMarkers;
+            document.getElementById('totalTime').textContent = totalTime.toFixed(2) + ' segundos';
+        }
+
+        function clearForm() {
+            document.getElementById('resultForm').reset();
+            document.getElementById('isEditing').value = 'false';
+            updateTotals();
+        }
+
+        function editResult(name, time, alfa, bravo, charlie, miss, falta, vitima, plate) {
+            document.getElementById('participantSelect').value = name;
+            document.getElementById('timeInSeconds').value = time;
+            document.getElementById('alfaCount').value = alfa;
+            document.getElementById('bravoCount').value = bravo;
+            document.getElementById('charlieCount').value = charlie;
+            document.getElementById('missCount').value = miss;
+            document.getElementById('faltaCount').value = falta;
+            document.getElementById('vitimaCount').value = vitima;
+            document.getElementById('plateCount').value = plate;
+            document.getElementById('isEditing').value = 'true';
+            updateTotals();
+        }
+
+        // Atualizar totais quando o tempo base mudar
+        document.getElementById('timeInSeconds').addEventListener('input', updateTotals);
+
+        // Inicializar totais
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTotals();
+        });
+    </script>
+}
+

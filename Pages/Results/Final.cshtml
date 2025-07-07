@@ -25,7 +25,7 @@
 @if (Model.FinalResults.Count == 0)
 {
     <div class="alert alert-warning">
-        Não há resultados suficientes para gerar a classificação final. Certifique-se de registrar os resultados das <a asp-page="/Rounds/Round1">rodadas</a>.
+        Não há resultados suficientes para gerar a classificação final. Certifique-se de registrar os resultados das duas rodadas antes de visualizar os resultados finais.
     </div>
 }
 else
@@ -59,62 +59,67 @@ else
                             <tr>
                                 <td>@(i + 1)</td>
                                 <td>@result.Name</td>
-                                <td>@(result.BestTime == config.DisqualifiedValue ? "Desclassificado" : $"{result.BestTime:F3}s")</td>
+                                <td>@(result.BestTime == config.DisqualifiedValue ? "Desclassificado" : $"{result.BestTime:F2}s")</td>
                                 <td>@result.BestRound</td>
-                                <td>@(result.Round1Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round1Time == 0 ? "Não registrado" : $"{result.Round1Time:F3}s"))</td>
-                                <td>@(result.Round2Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round2Time == 0 ? "Não registrado" : $"{result.Round2Time:F3}s"))</td>
+                                <td>@(result.Round1Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round1Time.ToString("F2") + "s"))</td>
+                                <td>@(result.Round2Time == config.DisqualifiedValue ? "Desclassificado" : (result.Round2Time.ToString("F2") + "s"))</td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="card-footer">
-            <a asp-page="/Index" class="btn btn-secondary">Voltar</a>
-            <a asp-page="/Results/ExportPdf" class="btn btn-success">Exportar para PDF</a>
-            <a asp-page="/History/Competitions" class="btn btn-info">
-                <i class="bi bi-clock-history"></i> Ver Histórico
-            </a>
-        </div>
     </div>
-    
+
     <div class="row">
         <div class="col-md-6">
-            <div class="card mb-4">
+            <div class="card">
                 <div class="card-header">
-                    Resultados da Primeira Rodada
+                    <h5>Detalhes da Rodada 1</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Posição</th>
                                     <th>Nome</th>
                                     <th>Tempo Base</th>
-                                    <th>Penalidades</th>
-                                    <th>Tempo Total</th>
+                                    <th>Alfa</th>
+                                    <th>Bravo</th>
+                                    <th>Charlie</th>
+                                    <th>Miss</th>
+                                    <th>Fault</th>
+                                    <th>Vítima</th>
+                                    <th>Plate</th>
+                                    <th>Total Marcadores</th>
+                                    <th>Tempo Final</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @{
-                                    var round1Results = Model.Round1Results
-                                        .OrderBy(p => p.IsEliminated)
-                                        .ThenBy(p => p.CalculateTotalTime())
-                                        .ToList();
-
-                                    for (int i = 0; i < round1Results.Count; i++)
-                                    {
-                                        var result = round1Results[i];
-                                        var penalties = result.CalculateTotalTime() - result.TimeInSeconds;
-                                        <tr>
-                                            <td>@(i + 1)</td>
-                                            <td>@result.Name</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
-                                            <td>@(result.IsEliminated ? "-" : $"{penalties:F3}s")</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime():F3}s")</td>
-                                        </tr>
-                                    }
+                                @foreach (var result in Model.Round1Results.OrderBy(r => r.TotalTime))
+                                {
+                                    <tr>
+                                        <td>@result.Name</td>
+                                        <td>@result.TimeInSeconds.ToString("F2")s</td>
+                                        <td>@result.AlfaCount</td>
+                                        <td>@result.BravoCount</td>
+                                        <td>@result.CharlieCount</td>
+                                        <td>@result.MissCount</td>
+                                        <td>@result.FaltaCount</td>
+                                        <td>@result.VitimaCount</td>
+                                        <td>@result.PlateCount</td>
+                                        <td>@(result.AlfaCount + result.BravoCount + result.CharlieCount + result.MissCount + result.FaltaCount + result.VitimaCount + result.PlateCount)</td>
+                                        <td>
+                                            @if (result.TotalTime >= config.DisqualifiedValue)
+                                            {
+                                                <span class="text-danger">DESCLASSIFICADO</span>
+                                            }
+                                            else
+                                            {
+                                                @result.TotalTime.ToString("F2")<text>s</text>
+                                            }
+                                        </td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
@@ -122,43 +127,55 @@ else
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6">
-            <div class="card mb-4">
+            <div class="card">
                 <div class="card-header">
-                    Resultados da Segunda Rodada
+                    <h5>Detalhes da Rodada 2</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Posição</th>
                                     <th>Nome</th>
                                     <th>Tempo Base</th>
-                                    <th>Penalidades</th>
-                                    <th>Tempo Total</th>
+                                    <th>Alfa</th>
+                                    <th>Bravo</th>
+                                    <th>Charlie</th>
+                                    <th>Miss</th>
+                                    <th>Fault</th>
+                                    <th>Vítima</th>
+                                    <th>Plate</th>
+                                    <th>Total Marcadores</th>
+                                    <th>Tempo Final</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @{
-                                    var round2Results = Model.Round2Results
-                                        .OrderBy(p => p.IsEliminated)
-                                        .ThenBy(p => p.CalculateTotalTime())
-                                        .ToList();
-
-                                    for (int i = 0; i < round2Results.Count; i++)
-                                    {
-                                        var result = round2Results[i];
-                                        var penalties = result.CalculateTotalTime() - result.TimeInSeconds;
-                                        <tr>
-                                            <td>@(i + 1)</td>
-                                            <td>@result.Name</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.TimeInSeconds:F3}s")</td>
-                                            <td>@(result.IsEliminated ? "-" : $"{penalties:F3}s")</td>
-                                            <td>@(result.IsEliminated ? "Desclassificado" : $"{result.CalculateTotalTime():F3}s")</td>
-                                        </tr>
-                                    }
+                                @foreach (var result in Model.Round2Results.OrderBy(r => r.TotalTime))
+                                {
+                                    <tr>
+                                        <td>@result.Name</td>
+                                        <td>@result.TimeInSeconds.ToString("F2")s</td>
+                                        <td>@result.AlfaCount</td>
+                                        <td>@result.BravoCount</td>
+                                        <td>@result.CharlieCount</td>
+                                        <td>@result.MissCount</td>
+                                        <td>@result.FaltaCount</td>
+                                        <td>@result.VitimaCount</td>
+                                        <td>@result.PlateCount</td>
+                                        <td>@(result.AlfaCount + result.BravoCount + result.CharlieCount + result.MissCount + result.FaltaCount + result.VitimaCount + result.PlateCount)</td>
+                                        <td>
+                                            @if (result.TotalTime >= config.DisqualifiedValue)
+                                            {
+                                                <span class="text-danger">DESCLASSIFICADO</span>
+                                            }
+                                            else
+                                            {
+                                                @result.TotalTime.ToString("F2")<text>s</text>
+                                            }
+                                        </td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
@@ -167,50 +184,67 @@ else
             </div>
         </div>
     </div>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            Configuração de Penalidades Atual
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Bravo
-                            <span class="badge bg-primary rounded-pill">@config.BravoValue s</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Charlie
-                            <span class="badge bg-primary rounded-pill">@config.CharlieValue s</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Miss
-                            <span class="badge bg-primary rounded-pill">@config.MissValue s</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Vítima
-                            <span class="badge bg-primary rounded-pill">@config.VitimaValue s</span>
-                        </li>
-                    </ul>
+
+    <div class="mt-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Resumo da Competição</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Total de Participantes:</strong><br>
+                        @Model.FinalResults.Count
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Participantes Classificados:</strong><br>
+                        @Model.FinalResults.Count(r => r.BestTime < config.DisqualifiedValue)
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Participantes Desclassificados:</strong><br>
+                        @Model.FinalResults.Count(r => r.BestTime >= config.DisqualifiedValue)
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Melhor Tempo Geral:</strong><br>
+                        @{
+                            var bestOverall = Model.FinalResults.Where(r => r.BestTime < config.DisqualifiedValue).OrderBy(r => r.BestTime).FirstOrDefault();
+                        }
+                        @if (bestOverall != null)
+                        {
+                            @($"{bestOverall.BestTime:F2}s ({bestOverall.Name})")
+                        }
+                        else
+                        {
+                            <text>N/A</text>
+                        }
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Plate
-                            <span class="badge bg-primary rounded-pill">@config.PlateValue s</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Fault
-                            <span class="badge bg-primary rounded-pill">@config.FaultValue s</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Desclassificado
-                            <span class="badge bg-danger rounded-pill">@config.DisqualifiedValue s</span>
-                        </li>
-                    </ul>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <strong>Configuração de Penalidades Utilizada:</strong><br>
+                        <small class="text-muted">
+                            Alfa: @config.AlfaValue s | 
+                            Bravo: @config.BravoValue s | 
+                            Charlie: @config.CharlieValue s | 
+                            Miss: @config.MissValue s | 
+                            Fault: @config.FaultValue s | 
+                            Vítima: @config.VitimaValue s | 
+                            Plate: @config.PlateValue s
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-page="/Results/ExportPdf" class="btn btn-success">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+        </a>
+        <a asp-page="/Index" class="btn btn-secondary">
+            <i class="bi bi-house"></i> Voltar ao Início
+        </a>
     </div>
 }
+
