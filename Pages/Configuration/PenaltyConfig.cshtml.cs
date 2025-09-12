@@ -29,7 +29,7 @@ namespace CompetitionApp.Pages.Configuration
         [BindProperty]
         [Display(Name = "Fault")]
         [Range(0, 999, ErrorMessage = "O valor deve estar entre 0 e 999")]
-        public decimal FaultValue { get; set; } = 10;
+        public decimal FaultValue { get; set; } = 4;
 
         [BindProperty]
         [Display(Name = "Vítima")]
