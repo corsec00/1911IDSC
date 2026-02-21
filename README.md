@@ -10,7 +10,7 @@
 Autor: Leonardo Santos Silva<br />
 Data Release: 14/06/2025<br />
 Status: Produção, V1.0.0<br />
-Testes: 
+Testes:  
 - Windows: Microsoft Edge e Google Chrome
 - Android: Google Chrome
 
